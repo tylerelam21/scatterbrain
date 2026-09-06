@@ -32,6 +32,7 @@ export function PhotoUploader({ collectionSlug, collectionId }: PhotoUploaderPro
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<"idle" | "uploading" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
   async function uploadFiles(files: FileList | File[]) {
@@ -43,12 +44,22 @@ export function PhotoUploader({ collectionSlug, collectionId }: PhotoUploaderPro
         const { width, height } = await readImageDimensions(file);
         const { storageKey, uploadUrl } = await requestPhotoUpload(file.name, file.type);
 
-        const res = await fetch(uploadUrl, {
-          method: "PUT",
-          body: file,
-          headers: { "Content-Type": file.type },
-        });
-        if (!res.ok) throw new Error("Upload failed");
+        let res: Response;
+        try {
+          res = await fetch(uploadUrl, {
+            method: "PUT",
+            body: file,
+            headers: { "Content-Type": file.type },
+          });
+        } catch {
+          // A network-level failure here (not an HTTP error status) almost
+          // always means the browser blocked the cross-origin PUT — R2
+          // buckets need an explicit CORS policy allowing this origin.
+          throw new Error("Upload to storage was blocked. The storage bucket's CORS policy likely needs this site's origin allowed.");
+        }
+        if (!res.ok) {
+          throw new Error(`Upload to storage failed (${res.status} ${res.statusText}).`);
+        }
 
         const photo = await createPhoto({
           storageKey,
@@ -64,9 +75,11 @@ export function PhotoUploader({ collectionSlug, collectionId }: PhotoUploaderPro
         }
       }
       setStatus("idle");
+      setErrorMessage(null);
       router.refresh();
-    } catch {
+    } catch (error) {
       setStatus("error");
+      setErrorMessage(error instanceof Error ? error.message : "Something failed. Try again.");
     }
   }
 
@@ -101,7 +114,7 @@ export function PhotoUploader({ collectionSlug, collectionId }: PhotoUploaderPro
           Drop photos here, or click to choose
         </button>
       )}
-      {status === "error" && <p className="mt-1 text-accent">Something failed. Try again.</p>}
+      {status === "error" && <p className="mt-1 text-accent">{errorMessage ?? "Something failed. Try again."}</p>}
     </div>
   );
 }
