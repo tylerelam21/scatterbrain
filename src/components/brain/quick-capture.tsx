@@ -13,13 +13,10 @@ export function QuickCapture() {
 
   return (
     <form ref={formRef} action={formAction} className="w-full">
-      <p className="text-xs font-medium tracking-widest text-muted uppercase">
-        What&apos;s on your mind?
-      </p>
-      <div className="relative mt-2">
+      <div className="relative">
         <textarea
           name="content"
-          placeholder="Type it before it disappears…"
+          placeholder="What's on your mind?"
           rows={1}
           required
           autoComplete="off"
@@ -29,7 +26,7 @@ export function QuickCapture() {
               formRef.current?.requestSubmit();
             }
           }}
-          className="w-full resize-none border-b border-border bg-transparent py-2 pr-8 text-ink placeholder:text-muted focus:outline-none"
+          className="w-full resize-none border-b border-border bg-transparent py-2 pr-8 text-lg text-ink placeholder:text-muted/70 focus:outline-none"
         />
         <span aria-hidden className="absolute right-0 bottom-2 text-muted">
           ↵

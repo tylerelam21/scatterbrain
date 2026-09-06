@@ -23,14 +23,15 @@
   --font-hand: var(--font-caveat);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --paper: #121110;
-    --ink: #f5f1ea;
-    --muted: #9c9587;
-    --border: rgba(245, 241, 234, 0.12);
-    --accent: #ff6a3d;
-  }
+/* Light (warm ivory) is the default look. Dark is an available option,
+   toggled explicitly (see ThemeToggle) rather than following the OS
+   automatically — set via a `data-theme` attribute on <html>. */
+:root[data-theme="dark"] {
+  --paper: #121110;
+  --ink: #f5f1ea;
+  --muted: #9c9587;
+  --border: rgba(245, 241, 234, 0.12);
+  --accent: #ff6a3d;
 }
 
 @media (prefers-reduced-motion: reduce) {

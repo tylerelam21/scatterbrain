@@ -6,7 +6,6 @@ import { listEventsInRange } from "@/lib/db/queries/calendar";
 import { getResurfacedThoughtCandidate, markBrainItemResurfaced } from "@/lib/db/queries/brain";
 import { getTopTags } from "@/lib/db/queries/tags";
 import { QuickCapture } from "@/components/brain/quick-capture";
-import { RecentBrain } from "@/components/brain/recent-brain";
 import { HomeHero } from "@/components/home/home-hero";
 import { TodaySchedule } from "@/components/home/today-schedule";
 
@@ -34,41 +33,34 @@ export default async function Home() {
       : null;
 
     return (
-      <main className="mx-auto grid w-full max-w-5xl flex-1 grid-cols-1 gap-16 px-6 py-16 lg:grid-cols-2">
+      <main className="mx-auto grid w-full max-w-5xl flex-1 grid-cols-1 gap-x-20 gap-y-16 px-6 py-20 lg:grid-cols-2">
         <div className="min-w-0">
           <HomeHero />
 
-          <div className="mt-10">
+          <div className="mt-12">
             <QuickCapture />
           </div>
 
           {resurfaced && daysAgo !== null && (
-            <Link href={`/brain/${resurfaced.id}`} className="mt-8 block">
+            <Link href={`/brain/${resurfaced.id}`} className="mt-10 block">
               <p className="text-xs text-muted">From {daysAgo} days ago</p>
               <p className="mt-1 truncate text-ink">{resurfaced.title || resurfaced.content}</p>
             </Link>
           )}
 
-          <div className="mt-10">
-            <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Recent</h2>
-            <div className="mt-3">
-              <RecentBrain userId={owner.id} />
-            </div>
-          </div>
-        </div>
-
-        <div className="min-w-0">
-          <TodaySchedule events={events} />
-
           {topTags.length > 0 && (
-            <section className="mt-10">
+            <section className="mt-16">
               <h2 className="text-xs font-medium tracking-widest text-muted uppercase">On my mind</h2>
-              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
-                {topTags.map((tag) => (
+              <div className="mt-4 flex flex-wrap gap-x-5 gap-y-3 text-lg">
+                {topTags.map((tag, index) => (
                   <Link
                     key={tag.name}
                     href={`/brain?tag=${encodeURIComponent(tag.name)}`}
-                    className="text-ink hover:text-accent"
+                    className={
+                      index === 0
+                        ? "text-accent underline decoration-1 underline-offset-4"
+                        : "text-ink/70 hover:text-ink"
+                    }
                   >
                     {tag.name}
                   </Link>
@@ -76,6 +68,10 @@ export default async function Home() {
               </div>
             </section>
           )}
+        </div>
+
+        <div className="min-w-0">
+          <TodaySchedule events={events} />
         </div>
       </main>
     );

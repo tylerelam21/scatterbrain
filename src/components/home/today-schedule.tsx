@@ -4,13 +4,10 @@ import Link from "next/link";
 import { addDays, endOfDay, formatTime, isSameDay } from "@/lib/calendar/dates";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 
-function eventColor(event: CalendarEventRow): string {
-  return event.calendarColor || event.calendarProviderColor || "var(--accent)";
-}
-
 // PRD §10.3-10.4 — today's events plus a short upcoming horizon, computed
 // client-side (browser's real local time) against a wide server-fetched
-// window, the same reasoning as the Calendar grid.
+// window, the same reasoning as the Calendar grid. Styled as a plain
+// editorial list — no timeline dots/connectors, no card chrome.
 export function TodaySchedule({ events }: { events: CalendarEventRow[] }) {
   const now = new Date();
 
@@ -21,12 +18,12 @@ export function TodaySchedule({ events }: { events: CalendarEventRow[] }) {
   const upcomingEvents = events
     .filter((e) => e.start > endOfDay(now) && e.start <= addDays(now, 7))
     .sort((a, b) => a.start.getTime() - b.start.getTime())
-    .slice(0, 5);
+    .slice(0, 4);
 
   const gapMessage = computeGapMessage(todayEvents, now);
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-14">
       <section>
         <div className="flex items-baseline justify-between">
           <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Today</h2>
@@ -36,42 +33,46 @@ export function TodaySchedule({ events }: { events: CalendarEventRow[] }) {
         </div>
 
         {todayEvents.length === 0 ? (
-          <p className="mt-4 text-sm text-muted">Nothing on the calendar today.</p>
+          <p className="mt-5 text-sm text-muted">Nothing on the calendar today.</p>
         ) : (
-          <ol className="mt-4 space-y-4 border-l border-border pl-4">
+          <ul className="mt-5 space-y-5">
             {todayEvents.map((event) => (
-              <li key={event.id} className="relative">
-                <span
-                  className="absolute top-1.5 -left-[21px] h-2 w-2 rounded-full"
-                  style={{ backgroundColor: eventColor(event) }}
-                />
-                <p className="text-xs text-muted">{event.allDay ? "All day" : formatTime(event.start)}</p>
-                <p className="text-ink">{event.title}</p>
-                {event.location && <p className="text-sm text-muted">{event.location}</p>}
+              <li key={event.id} className="flex items-baseline gap-4">
+                <span className="w-16 shrink-0 text-xs text-muted">
+                  {event.allDay ? "All day" : formatTime(event.start)}
+                </span>
+                <span>
+                  <span className="text-ink">{event.title}</span>
+                  {event.location && <span className="ml-2 text-sm text-muted">{event.location}</span>}
+                </span>
               </li>
             ))}
-          </ol>
+          </ul>
         )}
 
-        {gapMessage && <p className="font-hand mt-4 text-lg text-accent">{gapMessage}</p>}
+        {gapMessage && <p className="mt-5 text-sm text-muted italic">{gapMessage}</p>}
       </section>
 
       {upcomingEvents.length > 0 && (
         <section>
           <div className="flex items-baseline justify-between">
-            <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Upcoming</h2>
+            <h2 className="text-xs font-medium tracking-widest text-muted uppercase">
+              Worth knowing about
+            </h2>
             <Link href="/calendar" className="text-xs text-muted hover:text-ink">
               View calendar →
             </Link>
           </div>
-          <ul className="mt-4 space-y-3">
+          <ul className="mt-5 space-y-4">
             {upcomingEvents.map((event) => (
-              <li key={event.id} className="flex items-baseline justify-between gap-4 text-sm">
+              <li key={event.id} className="flex items-baseline justify-between gap-4">
                 <span className="min-w-0 truncate text-ink">{event.title}</span>
                 <span className="shrink-0 text-xs text-muted">
-                  {new Intl.DateTimeFormat(undefined, { weekday: "short", month: "short", day: "numeric" }).format(
-                    event.start,
-                  )}
+                  {new Intl.DateTimeFormat(undefined, {
+                    weekday: "short",
+                    month: "short",
+                    day: "numeric",
+                  }).format(event.start)}
                 </span>
               </li>
             ))}
