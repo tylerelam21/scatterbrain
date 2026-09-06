@@ -47,3 +47,19 @@ body {
   background: var(--paper);
   color: var(--ink);
 }
+
+/* PRD §10.2 — subtle Quick Capture success feedback, no JS timer needed:
+   the `key`-remounted element replays this animation on every save. */
+@keyframes qc-fade-out {
+  0%,
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.qc-saved-message {
+  animation: qc-fade-out 2s ease forwards;
+}
