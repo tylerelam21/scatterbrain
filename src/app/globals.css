@@ -63,3 +63,79 @@ body {
 .qc-saved-message {
   animation: qc-fade-out 2s ease forwards;
 }
+
+/* PRD §12.1 — distraction-free journal editor styling, using our own
+   design tokens rather than a generic prose plugin. */
+.journal-editor .ProseMirror {
+  min-height: 50vh;
+  font-size: 1.125rem;
+  line-height: 1.8;
+  color: var(--ink);
+}
+
+.journal-editor .ProseMirror:focus {
+  outline: none;
+}
+
+.journal-editor .ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  color: var(--muted);
+  float: left;
+  height: 0;
+  pointer-events: none;
+}
+
+.journal-editor .ProseMirror h1,
+.journal-editor .ProseMirror h2,
+.journal-editor .ProseMirror h3 {
+  font-family: var(--font-fraunces);
+  font-weight: 600;
+  line-height: 1.25;
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+}
+
+.journal-editor .ProseMirror h1 {
+  font-size: 1.75rem;
+}
+.journal-editor .ProseMirror h2 {
+  font-size: 1.4rem;
+}
+.journal-editor .ProseMirror h3 {
+  font-size: 1.15rem;
+}
+
+.journal-editor .ProseMirror p {
+  margin: 0.75em 0;
+}
+
+.journal-editor .ProseMirror ul,
+.journal-editor .ProseMirror ol {
+  padding-left: 1.5em;
+  margin: 0.75em 0;
+}
+
+.journal-editor .ProseMirror blockquote {
+  border-left: 2px solid var(--border);
+  padding-left: 1em;
+  margin: 1em 0;
+  color: var(--muted);
+}
+
+.journal-editor .ProseMirror a {
+  color: var(--accent);
+  text-decoration: underline;
+}
+
+.journal-editor .ProseMirror img {
+  max-width: 100%;
+  border-radius: 2px;
+}
+
+.journal-editor .ProseMirror code {
+  background: var(--border);
+  border-radius: 2px;
+  padding: 0.1em 0.35em;
+  font-family: var(--font-geist-mono);
+  font-size: 0.9em;
+}

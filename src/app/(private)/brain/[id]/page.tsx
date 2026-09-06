@@ -5,6 +5,7 @@ import { getTagsForBrainItem } from "@/lib/db/queries/tags";
 import { BRAIN_ITEM_TYPES } from "@/lib/brain/constants";
 import { VISIBILITY_OPTIONS } from "@/lib/content/visibility";
 import { addTag, removeTag, setArchived, setPinned, updateBrainItem } from "@/server/actions/brain";
+import { expandBrainItemToJournal } from "@/server/actions/journal";
 import { DeleteBrainItemForm } from "@/components/brain/delete-brain-item-form";
 
 export default async function BrainItemPage({
@@ -27,6 +28,11 @@ export default async function BrainItemPage({
           {new Date(item.createdAt).toLocaleString()}
         </p>
         <div className="flex items-center gap-4">
+          <form action={expandBrainItemToJournal.bind(null, item.id)}>
+            <button type="submit" className="text-sm text-muted hover:text-ink">
+              Expand into journal entry
+            </button>
+          </form>
           <form action={setPinned.bind(null, item.id, !item.pinned)}>
             <button type="submit" className="text-sm text-muted hover:text-ink">
               {item.pinned ? "Unpin" : "Pin"}

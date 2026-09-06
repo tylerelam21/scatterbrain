@@ -1,0 +1,1 @@
+ALTER TABLE "brain_items" ADD COLUMN "last_resurfaced_at" timestamp with time zone;

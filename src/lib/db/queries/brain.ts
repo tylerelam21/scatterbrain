@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, ilike, inArray, lte, or } from "drizzle-orm";
+import { and, desc, eq, gte, ilike, inArray, isNull, lt, lte, or, sql } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { brainItemTags, brainItems, tags } from "@/lib/db/schema";
 import type { BrainItemType } from "@/lib/brain/constants";
@@ -104,4 +104,32 @@ export async function setBrainItemFlags(
 
 export async function deleteBrainItem(userId: string, id: string) {
   await db.delete(brainItems).where(and(eq(brainItems.id, id), eq(brainItems.userId, userId)));
+}
+
+// PRD §10.6 resurfacing foundation — eligible items are older than 14 days,
+// not archived, and not resurfaced in the last 14 days. Home doesn't call
+// this yet (that's Phase 4); the query exists now so the exclusion rule has
+// somewhere to live.
+export async function getResurfacedThoughtCandidate(userId: string) {
+  const fourteenDaysAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+
+  const [item] = await db
+    .select()
+    .from(brainItems)
+    .where(
+      and(
+        eq(brainItems.userId, userId),
+        eq(brainItems.archived, false),
+        lt(brainItems.createdAt, fourteenDaysAgo),
+        or(isNull(brainItems.lastResurfacedAt), lt(brainItems.lastResurfacedAt, fourteenDaysAgo)),
+      ),
+    )
+    .orderBy(sql`random()`)
+    .limit(1);
+
+  return item ?? null;
+}
+
+export async function markBrainItemResurfaced(id: string) {
+  await db.update(brainItems).set({ lastResurfacedAt: new Date() }).where(eq(brainItems.id, id));
 }

@@ -1,4 +1,4 @@
-import { boolean, pgEnum, pgTable, primaryKey, text } from "drizzle-orm/pg-core";
+import { boolean, pgEnum, pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 import { idColumn, timestamps, visibilityEnum } from "./_shared";
 import { users } from "./users";
 
@@ -27,6 +27,9 @@ export const brainItems = pgTable("brain_items", {
   pinned: boolean("pinned").notNull().default(false),
   archived: boolean("archived").notNull().default(false),
   sourceUrl: text("source_url"),
+  // PRD §10.6 — resurfacing foundation: excludes items "resurfaced recently"
+  // once Home actually surfaces one (Phase 4). Not written to yet.
+  lastResurfacedAt: timestamp("last_resurfaced_at", { withTimezone: true }),
   ...timestamps,
 });
 
