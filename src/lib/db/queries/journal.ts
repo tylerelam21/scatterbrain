@@ -3,6 +3,7 @@ import { db } from "@/lib/db/client";
 import { journalEntries, journalEntryTags, tags } from "@/lib/db/schema";
 import type { JournalContent, JournalStatus } from "@/lib/journal/constants";
 import type { Visibility } from "@/lib/content/visibility";
+import { indexSearchDocument, removeSearchDocument } from "@/lib/search";
 
 export interface JournalListFilters {
   q?: string;
@@ -65,6 +66,13 @@ export async function createJournalEntry(
       plainText: input.plainText ?? "",
     })
     .returning();
+  await indexSearchDocument({
+    contentType: "JOURNAL_ENTRY",
+    contentId: created.id,
+    title: created.title,
+    body: created.plainText,
+    visibility: created.visibility,
+  });
   return created;
 }
 
@@ -80,14 +88,25 @@ export async function updateJournalEntry(
     visibility: Visibility;
   }>,
 ) {
-  await db
+  const [updated] = await db
     .update(journalEntries)
     .set(data)
-    .where(and(eq(journalEntries.id, id), eq(journalEntries.userId, userId)));
+    .where(and(eq(journalEntries.id, id), eq(journalEntries.userId, userId)))
+    .returning();
+  if (updated) {
+    await indexSearchDocument({
+      contentType: "JOURNAL_ENTRY",
+      contentId: updated.id,
+      title: updated.title,
+      body: updated.plainText,
+      visibility: updated.visibility,
+    });
+  }
 }
 
 export async function deleteJournalEntry(userId: string, id: string) {
   await db
     .delete(journalEntries)
     .where(and(eq(journalEntries.id, id), eq(journalEntries.userId, userId)));
+  await removeSearchDocument("JOURNAL_ENTRY", id);
 }

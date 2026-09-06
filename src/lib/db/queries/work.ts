@@ -4,6 +4,11 @@ import { db } from "@/lib/db/client";
 import { projects, projectTechnologies } from "@/lib/db/schema";
 import type { ProjectContent, ProjectStatus } from "@/lib/work/constants";
 import type { Visibility } from "@/lib/content/visibility";
+import { indexSearchDocument, removeSearchDocument } from "@/lib/search";
+
+function projectSearchBody(project: { tagline: string | null; summary: string | null; plainText: string | null }) {
+  return [project.tagline, project.summary, project.plainText].filter(Boolean).join("\n");
+}
 
 export interface ListProjectsOptions {
   isLab: boolean;
@@ -44,6 +49,13 @@ export async function createProject(isLab: boolean) {
     .insert(projects)
     .values({ slug, title: "Untitled", isLab })
     .returning();
+  await indexSearchDocument({
+    contentType: "PROJECT",
+    contentId: created.id,
+    title: created.title,
+    body: projectSearchBody(created),
+    visibility: created.visibility,
+  });
   return created;
 }
 
@@ -65,7 +77,16 @@ export async function updateProject(
     publishedAt: Date;
   }>,
 ) {
-  await db.update(projects).set(data).where(eq(projects.id, id));
+  const [updated] = await db.update(projects).set(data).where(eq(projects.id, id)).returning();
+  if (updated) {
+    await indexSearchDocument({
+      contentType: "PROJECT",
+      contentId: updated.id,
+      title: updated.title,
+      body: projectSearchBody(updated),
+      visibility: updated.visibility,
+    });
+  }
 }
 
 export async function isSlugTaken(slug: string, excludeId: string) {
@@ -75,6 +96,7 @@ export async function isSlugTaken(slug: string, excludeId: string) {
 
 export async function deleteProject(id: string) {
   await db.delete(projects).where(eq(projects.id, id));
+  await removeSearchDocument("PROJECT", id);
 }
 
 export async function listTechnologiesForProject(projectId: string) {

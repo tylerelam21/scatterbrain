@@ -3,6 +3,11 @@ import { and, asc, desc, eq } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { photoCollectionItems, photoCollections, photos } from "@/lib/db/schema";
 import type { Visibility } from "@/lib/content/visibility";
+import { indexSearchDocument, removeSearchDocument } from "@/lib/search";
+
+function photoSearchBody(photo: { caption: string | null; locationLabel: string | null }) {
+  return [photo.caption, photo.locationLabel].filter(Boolean).join(" ");
+}
 
 export async function getPhotoById(id: string) {
   return db.query.photos.findFirst({ where: eq(photos.id, id) });
@@ -24,6 +29,13 @@ export async function createPhoto(data: {
   height: number;
 }) {
   const [created] = await db.insert(photos).values(data).returning();
+  await indexSearchDocument({
+    contentType: "PHOTO",
+    contentId: created.id,
+    title: created.title,
+    body: photoSearchBody(created),
+    visibility: created.visibility,
+  });
   return created;
 }
 
@@ -40,11 +52,21 @@ export async function updatePhoto(
     sortOrder: number;
   }>,
 ) {
-  await db.update(photos).set(data).where(eq(photos.id, id));
+  const [updated] = await db.update(photos).set(data).where(eq(photos.id, id)).returning();
+  if (updated) {
+    await indexSearchDocument({
+      contentType: "PHOTO",
+      contentId: updated.id,
+      title: updated.title,
+      body: photoSearchBody(updated),
+      visibility: updated.visibility,
+    });
+  }
 }
 
 export async function deletePhoto(id: string) {
   await db.delete(photos).where(eq(photos.id, id));
+  await removeSearchDocument("PHOTO", id);
 }
 
 // --- Collections ---

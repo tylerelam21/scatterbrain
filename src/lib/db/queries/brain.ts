@@ -3,6 +3,7 @@ import { db } from "@/lib/db/client";
 import { brainItemTags, brainItems, tags } from "@/lib/db/schema";
 import type { BrainItemType } from "@/lib/brain/constants";
 import type { Visibility } from "@/lib/content/visibility";
+import { indexSearchDocument, removeSearchDocument } from "@/lib/search";
 
 export interface BrainListFilters {
   q?: string;
@@ -72,6 +73,13 @@ export async function getBrainItemById(userId: string, id: string) {
 // PRD §10.2 — capture must never require choosing a type, tag, or title.
 export async function createBrainItem(userId: string, content: string) {
   const [created] = await db.insert(brainItems).values({ userId, content }).returning();
+  await indexSearchDocument({
+    contentType: "BRAIN_ITEM",
+    contentId: created.id,
+    title: created.title,
+    body: created.content,
+    visibility: created.visibility,
+  });
   return created;
 }
 
@@ -85,10 +93,20 @@ export async function updateBrainItem(
     visibility: Visibility;
   }>,
 ) {
-  await db
+  const [updated] = await db
     .update(brainItems)
     .set(data)
-    .where(and(eq(brainItems.id, id), eq(brainItems.userId, userId)));
+    .where(and(eq(brainItems.id, id), eq(brainItems.userId, userId)))
+    .returning();
+  if (updated && !updated.archived) {
+    await indexSearchDocument({
+      contentType: "BRAIN_ITEM",
+      contentId: updated.id,
+      title: updated.title,
+      body: updated.content,
+      visibility: updated.visibility,
+    });
+  }
 }
 
 export async function setBrainItemFlags(
@@ -96,14 +114,28 @@ export async function setBrainItemFlags(
   id: string,
   flags: Partial<{ pinned: boolean; archived: boolean }>,
 ) {
-  await db
+  const [updated] = await db
     .update(brainItems)
     .set(flags)
-    .where(and(eq(brainItems.id, id), eq(brainItems.userId, userId)));
+    .where(and(eq(brainItems.id, id), eq(brainItems.userId, userId)))
+    .returning();
+  if (!updated) return;
+  if (updated.archived) {
+    await removeSearchDocument("BRAIN_ITEM", updated.id);
+  } else {
+    await indexSearchDocument({
+      contentType: "BRAIN_ITEM",
+      contentId: updated.id,
+      title: updated.title,
+      body: updated.content,
+      visibility: updated.visibility,
+    });
+  }
 }
 
 export async function deleteBrainItem(userId: string, id: string) {
   await db.delete(brainItems).where(and(eq(brainItems.id, id), eq(brainItems.userId, userId)));
+  await removeSearchDocument("BRAIN_ITEM", id);
 }
 
 // PRD §10.6 resurfacing foundation — eligible items are older than 14 days,

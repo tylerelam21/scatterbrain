@@ -21,6 +21,7 @@ import { db } from "@/lib/db/client";
 import { calendarEvents } from "@/lib/db/schema";
 import * as calendarQueries from "@/lib/db/queries/calendar";
 import { setAppSetting } from "@/lib/db/queries/settings";
+import { indexSearchDocument, removeSearchDocument } from "@/lib/search";
 
 // PRD §17 — "connect another Google account" is a distinct flow from login:
 // it can add accounts never used to sign in, and always requests a fresh
@@ -170,19 +171,30 @@ export async function createCalendarEvent(
       end: googleEnd,
     });
 
-    await db.insert(calendarEvents).values({
-      calendarId: calendar.id,
-      providerEventId: created.id,
+    const [eventRow] = await db
+      .insert(calendarEvents)
+      .values({
+        calendarId: calendar.id,
+        providerEventId: created.id,
+        title,
+        description: description || undefined,
+        location: location || undefined,
+        start: localStart,
+        end: localEnd,
+        allDay,
+        status: created.status,
+        htmlLink: created.htmlLink,
+        etag: created.etag,
+        lastSyncedAt: new Date(),
+      })
+      .returning();
+
+    await indexSearchDocument({
+      contentType: "CALENDAR_EVENT",
+      contentId: eventRow.id,
       title,
-      description: description || undefined,
-      location: location || undefined,
-      start: localStart,
-      end: localEnd,
-      allDay,
-      status: created.status,
-      htmlLink: created.htmlLink,
-      etag: created.etag,
-      lastSyncedAt: new Date(),
+      body: [description, location].filter(Boolean).join(" "),
+      visibility: "PRIVATE",
     });
   } catch (err) {
     return { ok: false, error: explainGoogleError(err) };
@@ -240,6 +252,14 @@ export async function updateCalendarEvent(
         lastSyncedAt: new Date(),
       })
       .where(eq(calendarEvents.id, id));
+
+    await indexSearchDocument({
+      contentType: "CALENDAR_EVENT",
+      contentId: id,
+      title,
+      body: [description, location].filter(Boolean).join(" "),
+      visibility: "PRIVATE",
+    });
   } catch (err) {
     return { ok: false, error: explainGoogleError(err) };
   }
@@ -259,6 +279,7 @@ export async function deleteCalendarEvent(id: string) {
   const accessToken = await calendarQueries.getValidAccessToken(event.connectionId);
   await deleteGoogleEvent(accessToken, event.providerCalendarId, event.providerEventId);
   await db.delete(calendarEvents).where(eq(calendarEvents.id, id));
+  await removeSearchDocument("CALENDAR_EVENT", id);
 
   revalidatePath("/calendar");
 }

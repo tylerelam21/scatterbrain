@@ -31,7 +31,7 @@ export function Nav({ session }: { session: Session | null }) {
               <input
                 type="search"
                 name="q"
-                placeholder="Search"
+                placeholder="Search (⌘K)"
                 className="w-28 border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:w-44 focus:outline-none"
               />
             </form>

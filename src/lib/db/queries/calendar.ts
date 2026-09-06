@@ -1,4 +1,4 @@
-import { and, asc, eq, gte, lte } from "drizzle-orm";
+import { and, asc, eq, gte, lte, sql } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { calendarConnections, calendarEvents, calendars } from "@/lib/db/schema";
 import { decryptToken, encryptToken } from "@/lib/calendar/encryption";
@@ -8,6 +8,7 @@ import {
   listGoogleEvents,
   refreshAccessToken,
 } from "@/lib/calendar/google";
+import { indexSearchDocument, removeSearchDocument } from "@/lib/search";
 
 const SYNC_WINDOW_PAST_MS = 90 * 24 * 60 * 60 * 1000; // ~3 months
 const SYNC_WINDOW_FUTURE_MS = 180 * 24 * 60 * 60 * 1000; // ~6 months
@@ -74,6 +75,11 @@ export async function deleteCalendarConnection(userId: string, id: string) {
   await db
     .delete(calendarConnections)
     .where(and(eq(calendarConnections.id, id), eq(calendarConnections.userId, userId)));
+  // The connection's calendars/events cascade-delete at the DB level, which
+  // doesn't touch search_documents — sweep out whatever it left behind.
+  await db.execute(
+    sql`delete from search_documents where content_type = 'CALENDAR_EVENT' and content_id not in (select id from calendar_events)`,
+  );
 }
 
 // Returns a live access token, transparently refreshing (and persisting)
@@ -282,19 +288,32 @@ export async function syncCalendarConnection(connectionId: string) {
 
     const events = await listGoogleEvents(accessToken, gcal.id, timeMin, timeMax);
     for (const event of events) {
-      if (event.status === "cancelled") continue;
+      if (event.status === "cancelled") {
+        const existingEvent = await db.query.calendarEvents.findFirst({
+          where: and(
+            eq(calendarEvents.calendarId, calendarRow.id),
+            eq(calendarEvents.providerEventId, event.id),
+          ),
+        });
+        if (existingEvent) {
+          await db.delete(calendarEvents).where(eq(calendarEvents.id, existingEvent.id));
+          await removeSearchDocument("CALENDAR_EVENT", existingEvent.id);
+        }
+        continue;
+      }
 
       const allDay = !!event.start.date;
       const start = new Date(event.start.dateTime ?? `${event.start.date}T00:00:00Z`);
       const end = new Date(event.end.dateTime ?? `${event.end.date}T00:00:00Z`);
+      const title = event.summary || "(untitled)";
 
-      await db
+      const [eventRow] = await db
         .insert(calendarEvents)
         .values({
           calendarId: calendarRow.id,
           providerEventId: event.id,
           recurringEventId: event.recurringEventId,
-          title: event.summary || "(untitled)",
+          title,
           description: event.description,
           location: event.location,
           start,
@@ -312,7 +331,7 @@ export async function syncCalendarConnection(connectionId: string) {
           target: [calendarEvents.calendarId, calendarEvents.providerEventId],
           set: {
             recurringEventId: event.recurringEventId,
-            title: event.summary || "(untitled)",
+            title,
             description: event.description,
             location: event.location,
             start,
@@ -326,7 +345,18 @@ export async function syncCalendarConnection(connectionId: string) {
             providerUpdatedAt: event.updated ? new Date(event.updated) : undefined,
             lastSyncedAt: new Date(),
           },
-        });
+        })
+        .returning();
+
+      // PRD §29 — cached calendar events are searchable, always PRIVATE
+      // (calendar has no public surface).
+      await indexSearchDocument({
+        contentType: "CALENDAR_EVENT",
+        contentId: eventRow.id,
+        title: eventRow.title,
+        body: [eventRow.description, eventRow.location].filter(Boolean).join(" "),
+        visibility: "PRIVATE",
+      });
     }
   }
 
