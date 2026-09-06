@@ -9,6 +9,10 @@
   --muted: #6b6558;
   --border: rgba(23, 20, 15, 0.1);
   --accent: #e1401a;
+  /* "Find the best move" board — restrained warm neutrals, deliberately
+     not chess-site green. */
+  --chess-light: #f2efe8;
+  --chess-dark: #d9d2c2;
 }
 
 @theme inline {
@@ -32,6 +36,8 @@
   --muted: #9c9587;
   --border: rgba(245, 241, 234, 0.12);
   --accent: #ff6a3d;
+  --chess-light: #2b2824;
+  --chess-dark: #1c1a17;
 }
 
 @media (prefers-reduced-motion: reduce) {

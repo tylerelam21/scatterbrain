@@ -7,10 +7,12 @@ import { getResurfacedThoughtCandidate, markBrainItemResurfaced } from "@/lib/db
 import { getTopTags } from "@/lib/db/queries/tags";
 import { getCurrentWeather } from "@/lib/home/weather";
 import { HOME_CITY } from "@/lib/home/location";
+import { getPuzzleForCurrentHour } from "@/lib/db/queries/chess";
 import { QuickCapture } from "@/components/brain/quick-capture";
 import { HomeHero } from "@/components/home/home-hero";
 import { TodaySchedule } from "@/components/home/today-schedule";
 import { WeatherMoment } from "@/components/home/weather-moment";
+import { BestMove } from "@/components/chess/best-move";
 
 // PRD §1, §10 — same URL, two identities: an authenticated owner gets the
 // private Home dashboard; anyone else gets the public landing.
@@ -22,11 +24,12 @@ export default async function Home() {
     const owner = await requireOwner();
     const today = nowDate();
 
-    const [events, resurfaced, topTags, weather] = await Promise.all([
+    const [events, resurfaced, topTags, weather, hourlyPuzzle] = await Promise.all([
       listEventsInRange(owner.id, addDays(startOfDay(today), -1), addDays(today, 8)),
       getResurfacedThoughtCandidate(owner.id),
       getTopTags(owner.id, 8),
       getCurrentWeather(),
+      getPuzzleForCurrentHour(),
     ]);
 
     if (resurfaced) {
@@ -80,6 +83,16 @@ export default async function Home() {
             <TodaySchedule events={events} />
           </div>
         </div>
+
+        {hourlyPuzzle && (
+          <BestMove
+            key={hourlyPuzzle.puzzleKey}
+            puzzleKey={hourlyPuzzle.puzzleKey}
+            fen={hourlyPuzzle.puzzle.fen}
+            sideToMove={hourlyPuzzle.puzzle.sideToMove}
+            nextAt={hourlyPuzzle.nextAt.toISOString()}
+          />
+        )}
       </main>
     );
   }

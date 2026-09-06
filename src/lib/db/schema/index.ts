@@ -1,6 +1,7 @@
 export * from "./_shared";
 export * from "./brain";
 export * from "./calendar";
+export * from "./chess";
 export * from "./journal";
 export * from "./photos";
 export * from "./relationships";
