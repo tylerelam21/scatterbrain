@@ -1,35 +1,82 @@
+import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { requireOwner } from "@/lib/auth/require-owner";
+import { addDays, nowDate, startOfDay } from "@/lib/calendar/dates";
+import { listEventsInRange } from "@/lib/db/queries/calendar";
+import { getResurfacedThoughtCandidate, markBrainItemResurfaced } from "@/lib/db/queries/brain";
+import { getTopTags } from "@/lib/db/queries/tags";
 import { QuickCapture } from "@/components/brain/quick-capture";
 import { RecentBrain } from "@/components/brain/recent-brain";
+import { HomeHero } from "@/components/home/home-hero";
+import { TodaySchedule } from "@/components/home/today-schedule";
 
 // PRD §1, §10 — same URL, two identities: an authenticated owner gets the
-// private Home dashboard (today, Quick Capture, recent Brain, resurfaced
-// thought); anyone else gets the public landing.
+// private Home dashboard; anyone else gets the public landing.
 export default async function Home() {
   const session = await auth();
   const isOwner = session?.user?.role === "OWNER";
 
   if (isOwner) {
     const owner = await requireOwner();
+    const today = nowDate();
+
+    const [events, resurfaced, topTags] = await Promise.all([
+      listEventsInRange(owner.id, addDays(startOfDay(today), -1), addDays(today, 8)),
+      getResurfacedThoughtCandidate(owner.id),
+      getTopTags(owner.id, 8),
+    ]);
+
+    if (resurfaced) {
+      await markBrainItemResurfaced(resurfaced.id);
+    }
+    const daysAgo = resurfaced
+      ? Math.floor((today.getTime() - resurfaced.createdAt.getTime()) / 86_400_000)
+      : null;
+
     return (
-      <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-24">
-        <h1 className="font-display text-3xl leading-tight tracking-tight text-ink">
-          What&apos;s on your mind?
-        </h1>
-        <div className="mt-6">
-          <QuickCapture />
-        </div>
-        <div className="mt-16">
-          <h2 className="text-sm font-medium text-muted">Recent</h2>
-          <div className="mt-3">
-            <RecentBrain userId={owner.id} />
+      <main className="mx-auto grid w-full max-w-5xl flex-1 grid-cols-1 gap-16 px-6 py-16 lg:grid-cols-2">
+        <div className="min-w-0">
+          <HomeHero />
+
+          <div className="mt-10">
+            <QuickCapture />
+          </div>
+
+          {resurfaced && daysAgo !== null && (
+            <Link href={`/brain/${resurfaced.id}`} className="mt-8 block">
+              <p className="text-xs text-muted">From {daysAgo} days ago</p>
+              <p className="mt-1 truncate text-ink">{resurfaced.title || resurfaced.content}</p>
+            </Link>
+          )}
+
+          <div className="mt-10">
+            <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Recent</h2>
+            <div className="mt-3">
+              <RecentBrain userId={owner.id} />
+            </div>
           </div>
         </div>
-        <p className="mt-16 text-sm text-muted">
-          Today, Upcoming, and the resurfaced thought land here in Phase 4,
-          once Calendar exists.
-        </p>
+
+        <div className="min-w-0">
+          <TodaySchedule events={events} />
+
+          {topTags.length > 0 && (
+            <section className="mt-10">
+              <h2 className="text-xs font-medium tracking-widest text-muted uppercase">On my mind</h2>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+                {topTags.map((tag) => (
+                  <Link
+                    key={tag.name}
+                    href={`/brain?tag=${encodeURIComponent(tag.name)}`}
+                    className="text-ink hover:text-accent"
+                  >
+                    {tag.name}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
       </main>
     );
   }

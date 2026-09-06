@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { isSameDay, toDateParam } from "@/lib/calendar/dates";
+import { endOfDay, formatTime, isSameDay, startOfDay, toDateParam } from "@/lib/calendar/dates";
 import { layoutTimedEvents } from "@/lib/calendar/layout";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 
@@ -9,10 +9,6 @@ const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
 
 function eventColor(event: CalendarEventRow): string {
   return event.calendarColor || event.calendarProviderColor || "var(--accent)";
-}
-
-function formatTime(date: Date): string {
-  return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" }).format(date);
 }
 
 function formatDayLabel(date: Date): { weekday: string; day: string } {
@@ -138,18 +134,6 @@ function EventChip({ event, view }: { event: CalendarEventRow; view: "week" | "d
       {event.title}
     </Link>
   );
-}
-
-function startOfDay(date: Date): Date {
-  const copy = new Date(date);
-  copy.setHours(0, 0, 0, 0);
-  return copy;
-}
-
-function endOfDay(date: Date): Date {
-  const copy = new Date(date);
-  copy.setHours(23, 59, 59, 999);
-  return copy;
 }
 
 function minutesFromMidnight(date: Date, day: Date, isEnd = false): number {

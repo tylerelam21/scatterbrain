@@ -9,6 +9,33 @@ export async function listTagsForUser(userId: string) {
   });
 }
 
+// "On My Mind" (Home) — tags ranked by how often they're actually used
+// across Brain and Journal, not semantic clustering (that's V2 §63).
+export async function getTopTags(userId: string, limit = 8) {
+  const [brainLinks, journalLinks] = await Promise.all([
+    db
+      .select({ name: tags.name })
+      .from(brainItemTags)
+      .innerJoin(tags, eq(tags.id, brainItemTags.tagId))
+      .where(eq(tags.userId, userId)),
+    db
+      .select({ name: tags.name })
+      .from(journalEntryTags)
+      .innerJoin(tags, eq(tags.id, journalEntryTags.tagId))
+      .where(eq(tags.userId, userId)),
+  ]);
+
+  const counts = new Map<string, number>();
+  for (const { name } of [...brainLinks, ...journalLinks]) {
+    counts.set(name, (counts.get(name) ?? 0) + 1);
+  }
+
+  return Array.from(counts.entries())
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, limit)
+    .map(([name, count]) => ({ name, count }));
+}
+
 export async function getTagsForBrainItem(brainItemId: string) {
   const rows = await db
     .select({ id: tags.id, name: tags.name })

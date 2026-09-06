@@ -13,20 +13,28 @@ export function QuickCapture() {
 
   return (
     <form ref={formRef} action={formAction} className="w-full">
-      <textarea
-        name="content"
-        placeholder="What's on your mind?"
-        rows={1}
-        required
-        autoComplete="off"
-        onKeyDown={(event) => {
-          if (event.key === "Enter" && !event.shiftKey) {
-            event.preventDefault();
-            formRef.current?.requestSubmit();
-          }
-        }}
-        className="w-full resize-none border-b border-border bg-transparent py-3 font-display text-2xl text-ink placeholder:text-muted focus:outline-none"
-      />
+      <p className="text-xs font-medium tracking-widest text-muted uppercase">
+        What&apos;s on your mind?
+      </p>
+      <div className="relative mt-2">
+        <textarea
+          name="content"
+          placeholder="Type it before it disappears…"
+          rows={1}
+          required
+          autoComplete="off"
+          onKeyDown={(event) => {
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              formRef.current?.requestSubmit();
+            }
+          }}
+          className="w-full resize-none border-b border-border bg-transparent py-2 pr-8 text-ink placeholder:text-muted focus:outline-none"
+        />
+        <span aria-hidden className="absolute right-0 bottom-2 text-muted">
+          ↵
+        </span>
+      </div>
       <div aria-live="polite" className="mt-1 h-4 text-xs text-muted">
         {isPending && "Saving…"}
         {!isPending && state.ok && state.savedAt > 0 && (

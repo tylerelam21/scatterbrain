@@ -3,6 +3,7 @@ import type { Session } from "next-auth";
 import { signIn, signOut } from "@/lib/auth";
 
 const ownerLinks = [
+  { href: "/", label: "Today" },
   { href: "/calendar", label: "Calendar" },
   { href: "/brain", label: "Brain" },
   { href: "/journal", label: "Journal" },
