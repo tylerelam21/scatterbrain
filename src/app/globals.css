@@ -1,26 +1,49 @@
 @import "tailwindcss";
 
+/* PRD §31-33 — a specific, personal palette instead of default gray/blue
+   "SaaS" tokens. Warm paper/ink rather than pure black/white, one confident
+   accent used sparingly, hairline borders instead of card chrome. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --paper: #faf9f6;
+  --ink: #17140f;
+  --muted: #6b6558;
+  --border: rgba(23, 20, 15, 0.1);
+  --accent: #e1401a;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fraunces);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --paper: #121110;
+    --ink: #f5f1ea;
+    --muted: #9c9587;
+    --border: rgba(245, 241, 234, 0.12);
+    --accent: #ff6a3d;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
 }
