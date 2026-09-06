@@ -5,9 +5,12 @@ import { addDays, nowDate, startOfDay } from "@/lib/calendar/dates";
 import { listEventsInRange } from "@/lib/db/queries/calendar";
 import { getResurfacedThoughtCandidate, markBrainItemResurfaced } from "@/lib/db/queries/brain";
 import { getTopTags } from "@/lib/db/queries/tags";
+import { getCurrentWeather } from "@/lib/home/weather";
+import { HOME_CITY } from "@/lib/home/location";
 import { QuickCapture } from "@/components/brain/quick-capture";
 import { HomeHero } from "@/components/home/home-hero";
 import { TodaySchedule } from "@/components/home/today-schedule";
+import { WeatherMoment } from "@/components/home/weather-moment";
 
 // PRD §1, §10 — same URL, two identities: an authenticated owner gets the
 // private Home dashboard; anyone else gets the public landing.
@@ -19,10 +22,11 @@ export default async function Home() {
     const owner = await requireOwner();
     const today = nowDate();
 
-    const [events, resurfaced, topTags] = await Promise.all([
+    const [events, resurfaced, topTags, weather] = await Promise.all([
       listEventsInRange(owner.id, addDays(startOfDay(today), -1), addDays(today, 8)),
       getResurfacedThoughtCandidate(owner.id),
       getTopTags(owner.id, 8),
+      getCurrentWeather(),
     ]);
 
     if (resurfaced) {
@@ -33,45 +37,48 @@ export default async function Home() {
       : null;
 
     return (
-      <main className="mx-auto grid w-full max-w-5xl flex-1 grid-cols-1 gap-x-20 gap-y-16 px-6 py-20 lg:grid-cols-2">
-        <div className="min-w-0">
+      <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-20">
+        <div className="flex items-start justify-between gap-8">
           <HomeHero />
-
-          <div className="mt-12">
-            <QuickCapture />
-          </div>
-
-          {resurfaced && daysAgo !== null && (
-            <Link href={`/brain/${resurfaced.id}`} className="mt-10 block">
-              <p className="text-xs text-muted">From {daysAgo} days ago</p>
-              <p className="mt-1 truncate text-ink">{resurfaced.title || resurfaced.content}</p>
-            </Link>
-          )}
-
-          {topTags.length > 0 && (
-            <section className="mt-16">
-              <h2 className="text-xs font-medium tracking-widest text-muted uppercase">On my mind</h2>
-              <div className="mt-4 flex flex-wrap gap-x-5 gap-y-3 text-lg">
-                {topTags.map((tag, index) => (
-                  <Link
-                    key={tag.name}
-                    href={`/brain?tag=${encodeURIComponent(tag.name)}`}
-                    className={
-                      index === 0
-                        ? "text-accent underline decoration-1 underline-offset-4"
-                        : "text-ink/70 hover:text-ink"
-                    }
-                  >
-                    {tag.name}
-                  </Link>
-                ))}
-              </div>
-            </section>
-          )}
+          <WeatherMoment city={HOME_CITY} tempF={weather.tempF} weatherCode={weather.weatherCode} />
         </div>
 
-        <div className="min-w-0">
-          <TodaySchedule events={events} />
+        <div className="mt-16 grid grid-cols-1 gap-x-20 gap-y-16 lg:grid-cols-2">
+          <div className="min-w-0">
+            <QuickCapture />
+
+            {resurfaced && daysAgo !== null && (
+              <Link href={`/brain/${resurfaced.id}`} className="mt-10 block">
+                <p className="text-xs text-muted">From {daysAgo} days ago</p>
+                <p className="mt-1 truncate text-ink">{resurfaced.title || resurfaced.content}</p>
+              </Link>
+            )}
+
+            {topTags.length > 0 && (
+              <section className="mt-16">
+                <h2 className="text-xs font-medium tracking-widest text-muted uppercase">On my mind</h2>
+                <div className="mt-4 flex flex-wrap gap-x-5 gap-y-3 text-lg">
+                  {topTags.map((tag, index) => (
+                    <Link
+                      key={tag.name}
+                      href={`/brain?tag=${encodeURIComponent(tag.name)}`}
+                      className={
+                        index === 0
+                          ? "text-accent underline decoration-1 underline-offset-4"
+                          : "text-ink/70 hover:text-ink"
+                      }
+                    >
+                      {tag.name}
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+
+          <div className="min-w-0">
+            <TodaySchedule events={events} />
+          </div>
         </div>
       </main>
     );
