@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CONTENT_TYPE_LABELS, type ContentType } from "@/lib/content/content-type";
+import { searchGroupFor, type SearchGroupKey } from "@/lib/content/content-type";
 import type { SearchResult } from "@/lib/db/queries/search";
 
 // PRD §30 "Search results should be keyboard navigable" — applied here too,
@@ -42,18 +42,22 @@ export function SearchResults({ results }: { results: SearchResult[] }) {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [results, selected, router]);
 
-  const groups = new Map<ContentType, { result: SearchResult; index: number }[]>();
+const groups = new Map<SearchGroupKey, { label: string; entries: { result: SearchResult; index: number }[] }>();
   results.forEach((result, index) => {
-    const list = groups.get(result.contentType) ?? [];
-    list.push({ result, index });
-    groups.set(result.contentType, list);
+    const group = searchGroupFor(result.contentType);
+    const existing = groups.get(group.key);
+    if (existing) {
+      existing.entries.push({ result, index });
+    } else {
+      groups.set(group.key, { label: group.label, entries: [{ result, index }] });
+    }
   });
 
   return (
     <div className="mt-6 space-y-8">
-      {Array.from(groups.entries()).map(([contentType, entries]) => (
-        <div key={contentType}>
-          <h2 className="text-xs tracking-wide text-muted uppercase">{CONTENT_TYPE_LABELS[contentType]}</h2>
+      {Array.from(groups.entries()).map(([groupKey, { label, entries }]) => (
+        <div key={groupKey}>
+          <h2 className="text-xs tracking-wide text-muted uppercase">{label}</h2>
           <ul className="mt-2 divide-y divide-border">
             {entries.map(({ result, index }) => (
               <li key={`${result.contentType}-${result.contentId}`}>

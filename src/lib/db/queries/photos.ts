@@ -92,6 +92,13 @@ export async function getCollectionBySlug(slug: string, { publicOnly }: { public
 export async function createCollection(title: string) {
   const slug = `${slugifyTitle(title) || "collection"}-${createId().slice(0, 6)}`;
   const [created] = await db.insert(photoCollections).values({ slug, title }).returning();
+  await indexSearchDocument({
+    contentType: "PHOTO_COLLECTION",
+    contentId: created.id,
+    title: created.title,
+    body: created.description ?? "",
+    visibility: created.visibility,
+  });
   return created;
 }
 
@@ -106,7 +113,16 @@ export async function updateCollection(
     sortOrder: number;
   }>,
 ) {
-  await db.update(photoCollections).set(data).where(eq(photoCollections.id, id));
+  const [updated] = await db.update(photoCollections).set(data).where(eq(photoCollections.id, id)).returning();
+  if (updated) {
+    await indexSearchDocument({
+      contentType: "PHOTO_COLLECTION",
+      contentId: updated.id,
+      title: updated.title,
+      body: updated.description ?? "",
+      visibility: updated.visibility,
+    });
+  }
 }
 
 export async function isCollectionSlugTaken(slug: string, excludeId: string) {
@@ -118,6 +134,7 @@ export async function isCollectionSlugTaken(slug: string, excludeId: string) {
 
 export async function deleteCollection(id: string) {
   await db.delete(photoCollections).where(eq(photoCollections.id, id));
+  await removeSearchDocument("PHOTO_COLLECTION", id);
 }
 
 export async function listPhotosInCollection(collectionId: string, { publicOnly }: { publicOnly: boolean }) {

@@ -6,7 +6,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 const ownerCoreLinks = [
   { href: "/", label: "Today" },
   { href: "/calendar", label: "Calendar" },
-  { href: "/brain", label: "Brain" },
+  { href: "/brain", label: "Ideas" },
   { href: "/journal", label: "Journal" },
 ];
 

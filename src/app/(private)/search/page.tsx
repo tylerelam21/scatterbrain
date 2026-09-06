@@ -1,26 +1,23 @@
 import Link from "next/link";
 import { requireOwner } from "@/lib/auth/require-owner";
 import { searchAll } from "@/lib/db/queries/search";
-import { CONTENT_TYPE_LABELS, CONTENT_TYPE_OPTIONS, type ContentType } from "@/lib/content/content-type";
+import { SEARCH_GROUPS, type SearchGroupKey } from "@/lib/content/content-type";
 import { SearchResults } from "@/components/search/search-results";
 
 interface SearchPageProps {
-  searchParams: Promise<{ q?: string; type?: string }>;
-}
-
-function isContentType(value: string): value is ContentType {
-  return (CONTENT_TYPE_OPTIONS as readonly string[]).includes(value);
+  searchParams: Promise<{ q?: string; group?: string }>;
 }
 
 // PRD §29, Phase 7 — global ranked search across Brain, Journal, Projects,
-// Photos, and cached Calendar events, with content-type filtering.
+// Photos (and their Collections), and cached Calendar events, with
+// content-type filtering.
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   await requireOwner();
-  const { q, type } = await searchParams;
-  const activeType = type && isContentType(type) ? type : undefined;
+  const { q, group } = await searchParams;
+  const activeGroup = SEARCH_GROUPS.find((g) => g.key === group);
 
   const results = q
-    ? await searchAll(q, { ownerMode: true, types: activeType ? [activeType] : undefined })
+    ? await searchAll(q, { ownerMode: true, types: activeGroup ? [...activeGroup.types] : undefined })
     : [];
 
   return (
@@ -36,23 +33,23 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           autoFocus
           className="w-full border-b border-border bg-transparent py-2 text-lg text-ink placeholder:text-muted focus:outline-none"
         />
-        {activeType && <input type="hidden" name="type" value={activeType} />}
+        {activeGroup && <input type="hidden" name="group" value={activeGroup.key} />}
       </form>
 
       <div className="mt-4 flex flex-wrap gap-2 text-xs">
         <Link
           href={q ? `/search?q=${encodeURIComponent(q)}` : "/search"}
-          className={`rounded-full border border-border px-3 py-1 ${!activeType ? "text-ink" : "text-muted hover:text-ink"}`}
+          className={`rounded-full border border-border px-3 py-1 ${!activeGroup ? "text-ink" : "text-muted hover:text-ink"}`}
         >
           All
         </Link>
-        {CONTENT_TYPE_OPTIONS.map((option) => (
+        {SEARCH_GROUPS.map((option) => (
           <Link
-            key={option}
-            href={`/search?q=${encodeURIComponent(q ?? "")}&type=${option}`}
-            className={`rounded-full border border-border px-3 py-1 ${activeType === option ? "text-ink" : "text-muted hover:text-ink"}`}
+            key={option.key}
+            href={`/search?q=${encodeURIComponent(q ?? "")}&group=${option.key}`}
+            className={`rounded-full border border-border px-3 py-1 ${activeGroup?.key === (option.key as SearchGroupKey) ? "text-ink" : "text-muted hover:text-ink"}`}
           >
-            {CONTENT_TYPE_LABELS[option]}
+            {option.label}
           </Link>
         ))}
       </div>

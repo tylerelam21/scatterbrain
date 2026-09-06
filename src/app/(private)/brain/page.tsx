@@ -37,7 +37,7 @@ export default async function BrainPage({ searchParams }: BrainPageProps) {
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-16">
-      <h1 className="font-display text-2xl tracking-tight text-ink">Brain</h1>
+      <h1 className="font-display text-2xl tracking-tight text-ink">Ideas</h1>
 
       <form className="mt-6 flex flex-wrap items-end gap-3 text-sm" method="get">
         <label className="flex flex-col gap-1">

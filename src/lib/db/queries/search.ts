@@ -1,6 +1,6 @@
 import { and, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
 import { db } from "@/lib/db/client";
-import { projects, searchDocuments } from "@/lib/db/schema";
+import { photoCollections, projects, searchDocuments } from "@/lib/db/schema";
 import type { ContentType } from "@/lib/content/content-type";
 
 export interface SearchResult {
@@ -12,18 +12,20 @@ export interface SearchResult {
   href: string;
 }
 
-// Projects route by slug, not id; everything else routes by id (PRD's
-// URL-search-param modal pattern for Photos/Calendar).
-function hrefFor(contentType: ContentType, contentId: string, projectSlug?: string): string {
+// Projects and photo collections route by slug; everything else routes by
+// id (PRD's URL-search-param modal pattern for Photos/Calendar).
+function hrefFor(contentType: ContentType, contentId: string, slug?: string): string {
   switch (contentType) {
     case "BRAIN_ITEM":
       return `/brain/${contentId}`;
     case "JOURNAL_ENTRY":
       return `/journal/${contentId}`;
     case "PROJECT":
-      return projectSlug ? `/work/${projectSlug}` : "/work";
+      return slug ? `/work/${slug}` : "/work";
     case "PHOTO":
       return `/photos?photo=${contentId}`;
+    case "PHOTO_COLLECTION":
+      return slug ? `/photos/${slug}` : "/photos";
     case "CALENDAR_EVENT":
       return `/calendar?event=${contentId}`;
   }
@@ -83,6 +85,7 @@ export async function searchAll(query: string, options: SearchOptions): Promise<
     .limit(options.limit ?? 30);
 
   const projectIds = rows.filter((r) => r.contentType === "PROJECT").map((r) => r.contentId);
+  const collectionIds = rows.filter((r) => r.contentType === "PHOTO_COLLECTION").map((r) => r.contentId);
   const slugById = new Map<string, string>();
   if (projectIds.length) {
     const projectRows = await db
@@ -90,6 +93,13 @@ export async function searchAll(query: string, options: SearchOptions): Promise<
       .from(projects)
       .where(inArray(projects.id, projectIds));
     for (const p of projectRows) slugById.set(p.id, p.slug);
+  }
+  if (collectionIds.length) {
+    const collectionRows = await db
+      .select({ id: photoCollections.id, slug: photoCollections.slug })
+      .from(photoCollections)
+      .where(inArray(photoCollections.id, collectionIds));
+    for (const c of collectionRows) slugById.set(c.id, c.slug);
   }
 
   return rows.map((row) => ({
