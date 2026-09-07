@@ -86,18 +86,56 @@ body {
 }
 
 /* Home's brain map — six hoverable lobes, plain CSS highlight so the
-   illustration can stay a server component. */
+   illustration can stay a server component. Each <a> carries its own
+   --region-color (and optionally a darker --label-color for legibility on
+   pale fills like Job Costing's); labels and leader lines stay tinted at
+   rest and sharpen on hover, echoing the labeled-anatomy-poster genre. */
 .brain-map .brain-region-fill {
-  opacity: 0.4;
+  opacity: 0.52;
   transition: opacity 150ms ease;
 }
 
 .brain-map a:hover .brain-region-fill,
 .brain-map a:focus-visible .brain-region-fill {
-  opacity: 0.88;
+  opacity: 0.85;
+}
+
+.brain-map .brain-leader {
+  stroke: var(--label-color, var(--region-color));
+  opacity: 0.62;
+  transition: opacity 150ms ease, stroke-width 150ms ease;
+}
+
+.brain-map a:hover .brain-leader,
+.brain-map a:focus-visible .brain-leader {
+  opacity: 1;
+  stroke-width: 1.9px;
+}
+
+.brain-map .brain-anchor-dot {
+  fill: var(--label-color, var(--region-color));
+  opacity: 0.62;
+  transition: opacity 150ms ease;
+}
+
+.brain-map a:hover .brain-anchor-dot,
+.brain-map a:focus-visible .brain-anchor-dot {
+  opacity: 1;
 }
 
 .brain-map .brain-region-label {
+  fill: var(--label-color, var(--region-color));
+  opacity: 0.9;
+  transition: opacity 150ms ease;
+  pointer-events: none;
+}
+
+.brain-map a:hover .brain-region-label,
+.brain-map a:focus-visible .brain-region-label {
+  opacity: 1;
+}
+
+.brain-map .brain-region-sub {
   pointer-events: none;
 }
 
