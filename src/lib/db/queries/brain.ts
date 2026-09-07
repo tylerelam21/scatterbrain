@@ -71,8 +71,11 @@ export async function getBrainItemById(userId: string, id: string) {
 }
 
 // PRD §10.2 — capture must never require choosing a type, tag, or title.
-export async function createBrainItem(userId: string, content: string) {
-  const [created] = await db.insert(brainItems).values({ userId, content }).returning();
+export async function createBrainItem(userId: string, content: string, sourceUrl?: string) {
+  const [created] = await db
+    .insert(brainItems)
+    .values({ userId, content, sourceUrl: sourceUrl || null })
+    .returning();
   await indexSearchDocument({
     contentType: "BRAIN_ITEM",
     contentId: created.id,
