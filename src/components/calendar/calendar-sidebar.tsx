@@ -47,7 +47,7 @@ export function CalendarSidebar({ calendars }: { calendars: CalendarRow[] }) {
               />
               <input
                 type="color"
-                value={calendar.customColor || calendar.providerColor || "#e1401a"}
+                value={calendar.customColor || calendar.providerColor || "#2c502c"}
                 disabled={isPending}
                 onChange={(event) => {
                   const color = event.target.value;
