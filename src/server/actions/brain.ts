@@ -10,7 +10,7 @@ import { VISIBILITY_OPTIONS, type Visibility } from "@/lib/content/visibility";
 
 function revalidateBrain(id?: string) {
   revalidatePath("/");
-  revalidatePath("/brain");
+  revalidatePath("/studio");
   if (id) revalidatePath(`/brain/${id}`);
 }
 
@@ -75,7 +75,7 @@ export async function deleteBrainItem(id: string) {
   const owner = await requireOwner();
   await brainQueries.deleteBrainItem(owner.id, id);
   revalidateBrain(id);
-  redirect("/brain");
+  redirect("/studio?tab=feed");
 }
 
 export async function addTag(id: string, formData: FormData) {

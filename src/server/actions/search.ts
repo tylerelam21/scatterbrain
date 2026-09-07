@@ -20,5 +20,5 @@ export async function captureThoughtFromPalette(content: string) {
   if (!trimmed) return;
   await createBrainItem(owner.id, trimmed);
   revalidatePath("/");
-  revalidatePath("/brain");
+  revalidatePath("/studio");
 }

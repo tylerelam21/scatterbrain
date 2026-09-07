@@ -11,6 +11,7 @@ import { slugify } from "@/lib/work/slug";
 function revalidateProject(slug?: string) {
   revalidatePath("/work");
   revalidatePath("/lab");
+  revalidatePath("/studio");
   if (slug) revalidatePath(`/work/${slug}`);
 }
 

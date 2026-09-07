@@ -11,7 +11,7 @@ import { JOURNAL_STATUSES, type JournalContent, type JournalStatus } from "@/lib
 import { VISIBILITY_OPTIONS, type Visibility } from "@/lib/content/visibility";
 
 function revalidateJournal(id?: string) {
-  revalidatePath("/journal");
+  revalidatePath("/studio");
   if (id) revalidatePath(`/journal/${id}`);
 }
 
@@ -23,6 +23,7 @@ export async function createJournalEntry() {
   revalidateJournal();
   redirect(`/journal/${entry.id}`);
 }
+
 
 export interface AutosaveState {
   ok: boolean;
@@ -70,7 +71,7 @@ export async function deleteJournalEntry(id: string) {
   const owner = await requireOwner();
   await journalQueries.deleteJournalEntry(owner.id, id);
   revalidateJournal(id);
-  redirect("/journal");
+  redirect("/studio?tab=journal");
 }
 
 export async function addJournalTag(id: string, formData: FormData) {
@@ -93,7 +94,7 @@ export async function expandBrainItemToJournal(brainItemId: string) {
   const owner = await requireOwner();
 
   const brainItem = await getBrainItemById(owner.id, brainItemId);
-  if (!brainItem) redirect("/brain");
+  if (!brainItem) redirect("/studio?tab=feed");
 
   const content = brainItem.content.trim();
   const contentJson: JournalContent = {

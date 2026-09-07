@@ -64,7 +64,7 @@ export default async function Home() {
                   {topTags.map((tag, index) => (
                     <Link
                       key={tag.name}
-                      href={`/brain?tag=${encodeURIComponent(tag.name)}`}
+                      href={`/studio?tab=feed&tag=${encodeURIComponent(tag.name)}`}
                       className={
                         index === 0
                           ? "text-accent underline decoration-1 underline-offset-4"

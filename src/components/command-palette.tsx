@@ -81,9 +81,9 @@ export function CommandPalette() {
     { id: "new-journal", label: "New journal entry", run: () => createJournalEntry() },
     { id: "new-event", label: "New calendar event", run: () => router.push("/calendar?create=1") },
     { id: "open-calendar", label: "Open Calendar", run: () => router.push("/calendar") },
-    { id: "open-brain", label: "Open Brain", run: () => router.push("/brain") },
-    { id: "open-journal", label: "Open Journal", run: () => router.push("/journal") },
-    { id: "open-work", label: "Open Work", run: () => router.push("/work") },
+    { id: "open-feed", label: "Open Studio feed", run: () => router.push("/studio?tab=feed") },
+    { id: "open-journal", label: "Open Studio journal", run: () => router.push("/studio?tab=journal") },
+    { id: "open-projects", label: "Open Studio projects", run: () => router.push("/studio?tab=projects") },
     { id: "open-photos", label: "Open Photos", run: () => router.push("/photos") },
     { id: "open-settings", label: "Open Settings", run: () => router.push("/settings") },
   ];

@@ -30,6 +30,18 @@ export async function listProjects({ isLab, publicOnly }: ListProjectsOptions) {
     .orderBy(desc(projects.featured), asc(projects.sortOrder), desc(projects.createdAt));
 }
 
+// Studio's combined Projects tab — Work and Lab together, each row still
+// carrying its own isLab flag so the UI can badge experiments inline.
+export async function listAllProjects({ publicOnly }: { publicOnly: boolean }) {
+  const conditions = publicOnly ? [eq(projects.visibility, "PUBLIC")] : [];
+
+  return db
+    .select()
+    .from(projects)
+    .where(conditions.length ? and(...conditions) : undefined)
+    .orderBy(desc(projects.featured), asc(projects.sortOrder), desc(projects.createdAt));
+}
+
 export async function getProjectBySlug(slug: string, { publicOnly }: { publicOnly: boolean }) {
   const project = await db.query.projects.findFirst({ where: eq(projects.slug, slug) });
   if (!project) return null;

@@ -7,13 +7,11 @@ import { RuneMark } from "@/components/brand/rune-mark";
 const ownerCoreLinks = [
   { href: "/", label: "Today" },
   { href: "/calendar", label: "Calendar" },
-  { href: "/brain", label: "Ideas" },
-  { href: "/journal", label: "Journal" },
+  { href: "/studio", label: "Studio" },
 ];
 
-const publicCoreLinks = [
+const visitorCoreLinks = [
   { href: "/work", label: "Work" },
-  { href: "/photos", label: "Photos" },
   { href: "/lab", label: "Lab" },
 ];
 
@@ -48,11 +46,15 @@ export function Nav({ session }: { session: Session | null }) {
                   {link.label}
                 </Link>
               ))}
-            {publicCoreLinks.map((link) => (
-              <Link key={link.href} href={link.href} className="transition-colors hover:text-ink">
-                {link.label}
-              </Link>
-            ))}
+            {!isOwner &&
+              visitorCoreLinks.map((link) => (
+                <Link key={link.href} href={link.href} className="transition-colors hover:text-ink">
+                  {link.label}
+                </Link>
+              ))}
+            <Link href="/photos" className="transition-colors hover:text-ink">
+              Photos
+            </Link>
           </nav>
 
           <div className="flex items-center gap-3 text-xs text-muted">
