@@ -15,6 +15,7 @@ import { WeatherMoment } from "@/components/home/weather-moment";
 import { BestMove } from "@/components/chess/best-move";
 import { BrainMap } from "@/components/home/brain-map";
 import { PublicIdentity } from "@/components/home/public-identity";
+import { WorldObjects } from "@/components/home/world-objects";
 
 // PRD §1, §10 — same URL, two identities: an authenticated owner gets the
 // private Home dashboard; anyone else gets the public landing.
@@ -104,8 +105,11 @@ export default async function Home() {
   }
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-6 py-24">
+    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6 py-24">
       <PublicIdentity />
+      <section className="mt-20">
+        <WorldObjects />
+      </section>
     </main>
   );
 }
