@@ -13,6 +13,7 @@ import { HomeHero } from "@/components/home/home-hero";
 import { TodaySchedule } from "@/components/home/today-schedule";
 import { WeatherMoment } from "@/components/home/weather-moment";
 import { BestMove } from "@/components/chess/best-move";
+import { BrainMap } from "@/components/home/brain-map";
 
 // PRD §1, §10 — same URL, two identities: an authenticated owner gets the
 // private Home dashboard; anyone else gets the public landing.
@@ -93,6 +94,12 @@ export default async function Home() {
             nextAt={hourlyPuzzle.nextAt.toISOString()}
           />
         )}
+
+        <section className="mt-16">
+          <h2 className="text-xs font-medium tracking-widest text-muted uppercase">What&rsquo;s rattling around</h2>
+          <p className="mt-1 text-sm text-muted">Hover a lobe to go somewhere.</p>
+          <BrainMap className="mt-6 max-w-2xl" />
+        </section>
       </main>
     );
   }

@@ -85,6 +85,22 @@ body {
   animation: qc-fade-out 2s ease forwards;
 }
 
+/* Home's brain map — six hoverable lobes, plain CSS highlight so the
+   illustration can stay a server component. */
+.brain-map .brain-region-fill {
+  opacity: 0.4;
+  transition: opacity 150ms ease;
+}
+
+.brain-map a:hover .brain-region-fill,
+.brain-map a:focus-visible .brain-region-fill {
+  opacity: 0.88;
+}
+
+.brain-map .brain-region-label {
+  pointer-events: none;
+}
+
 /* PRD §12.1 — distraction-free journal editor styling, using our own
    design tokens rather than a generic prose plugin. */
 .journal-editor .ProseMirror {
