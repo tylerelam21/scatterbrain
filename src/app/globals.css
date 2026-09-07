@@ -85,101 +85,20 @@ body {
   animation: qc-fade-out 2s ease forwards;
 }
 
-/* Home's brain map — a labeled-anatomy-poster-style illustration: solid
-   edge-to-edge lobes with a dense embossed fold texture, external labels
-   on their own leader lines colored to match each region (falling back to
-   a darker --label-color on pale fills like Job Costing's, for contrast).
-   Pure CSS hover so the illustration can stay a server component. */
-.brain-map .brain-outline {
-  fill: none;
-  stroke: var(--ink);
-  stroke-width: 2.5px;
-  stroke-linejoin: round;
-  stroke-linecap: round;
-}
-
-.brain-map .brain-region-fill {
-  opacity: 0.96;
-}
-
-.brain-map .brain-fold-group,
-.brain-map .brain-cerebellum-folds {
-  fill: none;
-  stroke: #fffaf0;
-  stroke-width: 1.3px;
-  stroke-linecap: round;
-  opacity: 0.6;
-}
-
-.brain-map .brain-fissure {
-  stroke: var(--ink);
-  stroke-width: 1.6px;
-  stroke-linecap: round;
-  opacity: 0.35;
-}
-
+/* Home's brain map — a static illustration (public/brain/brain-map.webp)
+   with invisible, percent-positioned link overlays per lobe. Each overlay
+   gets a soft glow in its own --region-color on hover/focus, since the
+   artwork itself can't repaint per lobe the way the old inline-SVG
+   version could. */
 .brain-map .brain-region-hit {
-  fill: transparent;
-  stroke: none;
-  pointer-events: all;
-  cursor: pointer;
+  transition: box-shadow 150ms ease, background-color 150ms ease;
 }
 
-.brain-map .brain-region-highlight {
-  stroke: var(--label-color, var(--region-color));
-  stroke-width: 0;
-  opacity: 0;
-  transition: stroke-width 150ms ease, opacity 150ms ease;
-  pointer-events: none;
-}
-
-.brain-map a:hover .brain-region-highlight,
-.brain-map a:focus-visible .brain-region-highlight {
-  stroke-width: 4px;
-  opacity: 0.9;
-}
-
-.brain-map .brain-leader {
-  stroke: var(--label-color, var(--region-color));
-  opacity: 0.7;
-  transition: opacity 150ms ease, stroke-width 150ms ease;
-  pointer-events: none;
-}
-
-.brain-map a:hover .brain-leader,
-.brain-map a:focus-visible .brain-leader {
-  opacity: 1;
-  stroke-width: 1.9px;
-}
-
-.brain-map .brain-anchor-dot {
-  fill: var(--label-color, var(--region-color));
-  opacity: 0.7;
-  transition: opacity 150ms ease;
-  pointer-events: none;
-}
-
-.brain-map a:hover .brain-anchor-dot,
-.brain-map a:focus-visible .brain-anchor-dot {
-  opacity: 1;
-}
-
-.brain-map .brain-region-label {
-  font-size: 22px;
-  fill: var(--label-color, var(--region-color));
-  opacity: 0.92;
-  transition: opacity 150ms ease;
-  pointer-events: none;
-}
-
-.brain-map a:hover .brain-region-label,
-.brain-map a:focus-visible .brain-region-label {
-  opacity: 1;
-}
-
-.brain-map .brain-region-sub {
-  fill: var(--muted);
-  pointer-events: none;
+.brain-map .brain-region-hit:hover,
+.brain-map .brain-region-hit:focus-visible {
+  background-color: color-mix(in srgb, var(--region-color) 12%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--region-color) 55%, transparent);
+  outline: none;
 }
 
 /* PRD §12.1 — distraction-free journal editor styling, using our own

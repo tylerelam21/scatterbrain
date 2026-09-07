@@ -96,9 +96,7 @@ export default async function Home() {
         )}
 
         <section className="mt-16">
-          <h2 className="text-xs font-medium tracking-widest text-muted uppercase">What&rsquo;s rattling around</h2>
-          <p className="mt-1 text-sm text-muted">Hover a lobe to go somewhere.</p>
-          <BrainMap className="mt-6" />
+          <BrainMap />
         </section>
       </main>
     );
