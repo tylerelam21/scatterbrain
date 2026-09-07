@@ -18,16 +18,12 @@ export default async function StudioPage({ searchParams }: StudioPageProps) {
   const initialSpace = params.space === "fun" ? "fun" : "work";
 
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-16">
-      <h1 className="font-display text-center text-2xl tracking-tight text-ink">Studio</h1>
-
-      <div className="mt-8">
-        <StudioSpaces
-          initialSpace={initialSpace}
-          workContent={<WorkSpaceContent ownerId={owner.id} />}
-          funContent={<FunSpaceContent ownerId={owner.id} />}
-        />
-      </div>
+    <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-10">
+      <StudioSpaces
+        initialSpace={initialSpace}
+        workContent={<WorkSpaceContent ownerId={owner.id} />}
+        funContent={<FunSpaceContent ownerId={owner.id} />}
+      />
     </main>
   );
 }
