@@ -85,25 +85,65 @@ body {
   animation: qc-fade-out 2s ease forwards;
 }
 
-/* Home's brain map — six hoverable lobes, plain CSS highlight so the
-   illustration can stay a server component. Each <a> carries its own
-   --region-color (and optionally a darker --label-color for legibility on
-   pale fills like Job Costing's); labels and leader lines stay tinted at
-   rest and sharpen on hover, echoing the labeled-anatomy-poster genre. */
-.brain-map .brain-region-fill {
-  opacity: 0.52;
-  transition: opacity 150ms ease;
+/* Home's brain map — a labeled-anatomy-poster-style illustration: solid
+   edge-to-edge lobes with a dense embossed fold texture, external labels
+   on their own leader lines colored to match each region (falling back to
+   a darker --label-color on pale fills like Job Costing's, for contrast).
+   Pure CSS hover so the illustration can stay a server component. */
+.brain-map .brain-outline {
+  fill: none;
+  stroke: var(--ink);
+  stroke-width: 2.5px;
+  stroke-linejoin: round;
+  stroke-linecap: round;
 }
 
-.brain-map a:hover .brain-region-fill,
-.brain-map a:focus-visible .brain-region-fill {
-  opacity: 0.85;
+.brain-map .brain-region-fill {
+  opacity: 0.96;
+}
+
+.brain-map .brain-fold-group,
+.brain-map .brain-cerebellum-folds {
+  fill: none;
+  stroke: #fffaf0;
+  stroke-width: 1.3px;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+
+.brain-map .brain-fissure {
+  stroke: var(--ink);
+  stroke-width: 1.6px;
+  stroke-linecap: round;
+  opacity: 0.35;
+}
+
+.brain-map .brain-region-hit {
+  fill: transparent;
+  stroke: none;
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.brain-map .brain-region-highlight {
+  stroke: var(--label-color, var(--region-color));
+  stroke-width: 0;
+  opacity: 0;
+  transition: stroke-width 150ms ease, opacity 150ms ease;
+  pointer-events: none;
+}
+
+.brain-map a:hover .brain-region-highlight,
+.brain-map a:focus-visible .brain-region-highlight {
+  stroke-width: 4px;
+  opacity: 0.9;
 }
 
 .brain-map .brain-leader {
   stroke: var(--label-color, var(--region-color));
-  opacity: 0.62;
+  opacity: 0.7;
   transition: opacity 150ms ease, stroke-width 150ms ease;
+  pointer-events: none;
 }
 
 .brain-map a:hover .brain-leader,
@@ -114,8 +154,9 @@ body {
 
 .brain-map .brain-anchor-dot {
   fill: var(--label-color, var(--region-color));
-  opacity: 0.62;
+  opacity: 0.7;
   transition: opacity 150ms ease;
+  pointer-events: none;
 }
 
 .brain-map a:hover .brain-anchor-dot,
@@ -124,8 +165,9 @@ body {
 }
 
 .brain-map .brain-region-label {
+  font-size: 22px;
   fill: var(--label-color, var(--region-color));
-  opacity: 0.9;
+  opacity: 0.92;
   transition: opacity 150ms ease;
   pointer-events: none;
 }
@@ -136,6 +178,7 @@ body {
 }
 
 .brain-map .brain-region-sub {
+  fill: var(--muted);
   pointer-events: none;
 }
 
