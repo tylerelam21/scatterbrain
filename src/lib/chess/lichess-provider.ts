@@ -31,6 +31,9 @@ export class LichessPuzzleProvider implements PuzzleProvider {
       const normalized = normalize(raw);
       if (normalized) return normalized;
       // Puzzle data couldn't be reconstructed cleanly — skip it, try another.
+      console.error(
+        `[chess] puzzle ${raw.puzzle.id} could not be reconstructed (initialPly=${raw.puzzle.initialPly}, solution[0]=${raw.puzzle.solution?.[0]})`,
+      );
     }
     return null;
   }
@@ -44,9 +47,14 @@ export class LichessPuzzleProvider implements PuzzleProvider {
         headers: { Authorization: `Bearer ${this.apiToken}` },
         cache: "no-store",
       });
-      if (!res.ok) return null;
+      if (!res.ok) {
+        const body = await res.text().catch(() => "");
+        console.error(`[chess] Lichess puzzle fetch failed: ${res.status} ${res.statusText} — ${body.slice(0, 300)}`);
+        return null;
+      }
       return (await res.json()) as LichessPuzzleResponse;
-    } catch {
+    } catch (err) {
+      console.error("[chess] Lichess puzzle fetch threw:", err);
       return null;
     }
   }

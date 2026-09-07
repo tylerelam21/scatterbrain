@@ -51,8 +51,14 @@ export async function getPuzzleForCurrentHour(): Promise<HourlyPuzzle | null> {
   }
 
   const token = process.env.LICHESS_API_TOKEN;
+  if (!token) {
+    console.error("[chess] LICHESS_API_TOKEN is not set — skipping fetch, falling back to cache if any");
+  }
   if (token) {
     const fresh = await new LichessPuzzleProvider(token).getEndgamePuzzle();
+    if (!fresh) {
+      console.error("[chess] LichessPuzzleProvider returned no usable puzzle after retries");
+    }
     if (fresh) {
       const [inserted] = await db
         .insert(chessPuzzles)
@@ -78,7 +84,10 @@ export async function getPuzzleForCurrentHour(): Promise<HourlyPuzzle | null> {
   }
 
   const [latest] = await db.select().from(chessPuzzles).orderBy(desc(chessPuzzles.hourKey)).limit(1);
-  if (!latest) return null;
+  if (!latest) {
+    console.error("[chess] no cached puzzle to fall back to — section will not render");
+    return null;
+  }
   return { puzzleKey: latest.hourKey, nextAt, puzzle: toNormalized(latest) };
 }
 
