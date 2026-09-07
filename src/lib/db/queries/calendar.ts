@@ -9,6 +9,7 @@ import {
   refreshAccessToken,
 } from "@/lib/calendar/google";
 import { indexSearchDocument, removeSearchDocument } from "@/lib/search";
+import { parseCalendarDateOnly } from "@/lib/calendar/dates";
 
 const SYNC_WINDOW_PAST_MS = 90 * 24 * 60 * 60 * 1000; // ~3 months
 const SYNC_WINDOW_FUTURE_MS = 180 * 24 * 60 * 60 * 1000; // ~6 months
@@ -303,8 +304,12 @@ export async function syncCalendarConnection(connectionId: string) {
       }
 
       const allDay = !!event.start.date;
-      const start = new Date(event.start.dateTime ?? `${event.start.date}T00:00:00Z`);
-      const end = new Date(event.end.dateTime ?? `${event.end.date}T00:00:00Z`);
+      const start = event.start.dateTime
+        ? new Date(event.start.dateTime)
+        : parseCalendarDateOnly(event.start.date!);
+      const end = event.end.dateTime
+        ? new Date(event.end.dateTime)
+        : parseCalendarDateOnly(event.end.date!);
       const title = event.summary || "(untitled)";
 
       const [eventRow] = await db

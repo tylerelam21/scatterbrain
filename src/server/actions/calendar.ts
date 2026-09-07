@@ -17,6 +17,7 @@ import {
 } from "@/lib/calendar/google";
 import { decryptToken } from "@/lib/calendar/encryption";
 import { CALENDAR_OAUTH_STATE_COOKIE } from "@/lib/calendar/constants";
+import { addDays, parseCalendarDateOnly, toDateParam } from "@/lib/calendar/dates";
 import { db } from "@/lib/db/client";
 import { calendarEvents } from "@/lib/db/schema";
 import * as calendarQueries from "@/lib/db/queries/calendar";
@@ -115,14 +116,16 @@ function buildEventTimes(formData: FormData): {
 
   if (allDay) {
     const date = String(formData.get("date") ?? "");
-    const endExclusive = new Date(`${date}T00:00:00Z`);
-    endExclusive.setUTCDate(endExclusive.getUTCDate() + 1);
+    const localStart = parseCalendarDateOnly(date);
+    // Google's all-day events use an exclusive end date — the day after
+    // the event's last day, not the last day itself.
+    const localEnd = addDays(localStart, 1);
     return {
       allDay: true,
       googleStart: { date },
-      googleEnd: { date: endExclusive.toISOString().slice(0, 10) },
-      localStart: new Date(`${date}T00:00:00Z`),
-      localEnd: endExclusive,
+      googleEnd: { date: toDateParam(localEnd) },
+      localStart,
+      localEnd,
     };
   }
 

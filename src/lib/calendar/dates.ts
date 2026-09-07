@@ -53,6 +53,17 @@ export function parseDateParam(value: string | undefined): Date {
   return new Date(y, m - 1, d);
 }
 
+// Google's all-day event "date" field ("2026-09-07") has no time or
+// timezone attached. Parsing it with `new Date("2026-09-07T00:00:00Z")`
+// (UTC midnight) and then reading it back with local getters — which is
+// what every date helper here does — rolls it back to the previous day
+// for anyone west of UTC. Parsing as local midnight instead keeps the
+// stored date's local y/m/d equal to the calendar date Google meant.
+export function parseCalendarDateOnly(value: string): Date {
+  const [y, m, d] = value.split("-").map(Number);
+  return new Date(y, m - 1, d);
+}
+
 // Thin wrappers around wall-clock reads so call sites (Server Components in
 // particular) don't call the impure Date.now()/new Date() directly.
 export function nowDate(): Date {
