@@ -9,7 +9,7 @@ export function PublicIdentity() {
         Tyler Elam
       </h1>
       <p className="mt-5 max-w-lg text-lg leading-8 text-muted">
-        I make useful things and try to make them beautiful.
+        I make useful things and occasionally unnecessary ones.
       </p>
       <p className="font-hand mt-4 max-w-md text-lg leading-snug text-accent/80">
         There&rsquo;s some good in this world, and it&rsquo;s worth fighting for.
