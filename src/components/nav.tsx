@@ -26,7 +26,7 @@ export function Nav({ session }: { session: Session | null }) {
         <div className="flex min-w-0 items-center gap-4">
           <Link href="/" className="flex shrink-0 items-center gap-3 text-sm tracking-tight text-ink">
             <RuneMark aria-hidden className="h-12 w-auto text-accent" />
-            life-of-tyla
+            {isOwner ? "life-of-tyla" : "Tyler Elam"}
           </Link>
           {isOwner && (
             <form action="/search" method="get" className="hidden min-w-0 md:block">

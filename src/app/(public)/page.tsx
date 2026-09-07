@@ -14,6 +14,7 @@ import { TodaySchedule } from "@/components/home/today-schedule";
 import { WeatherMoment } from "@/components/home/weather-moment";
 import { BestMove } from "@/components/chess/best-move";
 import { BrainMap } from "@/components/home/brain-map";
+import { PublicIdentity } from "@/components/home/public-identity";
 
 // PRD §1, §10 — same URL, two identities: an authenticated owner gets the
 // private Home dashboard; anyone else gets the public landing.
@@ -104,12 +105,7 @@ export default async function Home() {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col justify-center px-6 py-24">
-      <h1 className="font-display max-w-xl text-4xl leading-tight tracking-tight text-ink">
-        A personal hub, in progress.
-      </h1>
-      <p className="mt-4 max-w-xl text-lg leading-8 text-muted">
-        Public work, experiments, and photography will live here.
-      </p>
+      <PublicIdentity />
     </main>
   );
 }
