@@ -71,7 +71,7 @@ export async function deleteJournalEntry(id: string) {
   const owner = await requireOwner();
   await journalQueries.deleteJournalEntry(owner.id, id);
   revalidateJournal(id);
-  redirect("/studio?tab=journal");
+  redirect("/studio?space=fun");
 }
 
 export async function addJournalTag(id: string, formData: FormData) {
@@ -94,7 +94,7 @@ export async function expandBrainItemToJournal(brainItemId: string) {
   const owner = await requireOwner();
 
   const brainItem = await getBrainItemById(owner.id, brainItemId);
-  if (!brainItem) redirect("/studio?tab=feed");
+  if (!brainItem) redirect("/studio?space=fun");
 
   const content = brainItem.content.trim();
   const contentJson: JournalContent = {

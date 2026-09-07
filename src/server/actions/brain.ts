@@ -110,7 +110,7 @@ export async function deleteBrainItem(id: string) {
   const owner = await requireOwner();
   await brainQueries.deleteBrainItem(owner.id, id);
   revalidateBrain(id);
-  redirect("/studio?tab=feed");
+  redirect("/studio?space=fun");
 }
 
 export async function addTag(id: string, formData: FormData) {

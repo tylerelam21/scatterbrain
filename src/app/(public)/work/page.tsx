@@ -1,10 +1,12 @@
 import { auth } from "@/lib/auth";
-import { requireOwner } from "@/lib/auth/require-owner";
 import { listProjects } from "@/lib/db/queries/work";
 import { createProject } from "@/server/actions/work";
 import { ProjectCard } from "@/components/work/project-card";
-import { WorkBrainstorm } from "@/components/work/work-brainstorm";
 
+// The private Brainstorm box that used to live here moved to Studio's
+// Work space — reachable from the owner's own nav, unlike this public
+// portfolio page. The pegboard header stays; it's a nice banner for
+// visitors too.
 export default async function WorkPage() {
   const session = await auth();
   const isOwner = session?.user?.role === "OWNER";
@@ -20,8 +22,6 @@ export default async function WorkPage() {
         className="mb-10 block w-full h-auto rounded-lg select-none"
         draggable={false}
       />
-
-      {isOwner && <WorkBrainstorm ownerId={(await requireOwner()).id} />}
 
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl tracking-tight text-ink">Work</h1>
