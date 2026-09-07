@@ -14,8 +14,8 @@ export function QuickCapture() {
   return (
     <form ref={formRef} action={formAction} className="w-full max-w-[320px]">
       <div
-        className="relative -rotate-2 bg-[#f3dd8f] p-5 pb-8 shadow-[3px_6px_14px_rgba(23,20,15,0.18)] transition-transform duration-300 ease-out focus-within:rotate-0"
-        style={{ color: "#3a2f10" }}
+        className="relative -rotate-2 bg-[#f3dd8f] p-5 pb-8 transition-transform duration-300 ease-out focus-within:rotate-0"
+        style={{ color: "#3a2f10", boxShadow: "var(--note-shadow)" }}
       >
         <textarea
           name="content"

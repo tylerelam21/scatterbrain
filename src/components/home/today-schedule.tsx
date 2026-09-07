@@ -56,7 +56,7 @@ export function TodaySchedule({ events }: { events: CalendarEventRow[] }) {
                   )}
                   <span
                     className={`absolute top-1 left-0 h-2 w-2 rounded-full border-2 border-paper ${
-                      isNext ? "bg-accent ring-4 ring-accent/15" : "bg-muted/50"
+                      isNext ? "bg-accent ring-4 ring-accent/15" : "bg-muted"
                     }`}
                   />
                   <span className={`font-hand block text-sm ${isNext ? "text-accent" : "text-muted"}`}>

@@ -5,44 +5,6 @@ export interface CurrentWeather {
   weatherCode: number | null;
 }
 
-// WMO weather codes (Open-Meteo's `weather_code`), collapsed to one emoji
-// per condition family.
-const WEATHER_EMOJI: Record<number, string> = {
-  0: "☀️",
-  1: "🌤️",
-  2: "⛅",
-  3: "☁️",
-  45: "🌫️",
-  48: "🌫️",
-  51: "🌦️",
-  53: "🌦️",
-  55: "🌦️",
-  56: "🌦️",
-  57: "🌦️",
-  61: "🌧️",
-  63: "🌧️",
-  65: "🌧️",
-  66: "🌧️",
-  67: "🌧️",
-  71: "🌨️",
-  73: "🌨️",
-  75: "❄️",
-  77: "❄️",
-  80: "🌦️",
-  81: "🌦️",
-  82: "🌧️",
-  85: "🌨️",
-  86: "🌨️",
-  95: "⛈️",
-  96: "⛈️",
-  99: "⛈️",
-};
-
-export function weatherEmoji(code: number | null): string {
-  if (code === null) return "🌡️";
-  return WEATHER_EMOJI[code] ?? "🌡️";
-}
-
 // Open-Meteo: free, keyless. Decorative header/home detail, not the
 // "weather integration" PRD §6 defers to V2 (that's about informing
 // Wander/Discover recommendations, a different and much larger feature).
