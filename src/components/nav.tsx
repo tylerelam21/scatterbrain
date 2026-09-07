@@ -1,8 +1,8 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Session } from "next-auth";
 import { signIn, signOut } from "@/lib/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { RuneMark } from "@/components/brand/rune-mark";
 
 const ownerCoreLinks = [
   { href: "/", label: "Today" },
@@ -25,7 +25,7 @@ export function Nav({ session }: { session: Session | null }) {
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-6 px-6 py-5">
         <div className="flex min-w-0 items-center gap-4">
           <Link href="/" className="flex shrink-0 items-center gap-3 text-sm tracking-tight text-ink">
-            <Image src="/brand/rune-mark-transparent.png" alt="" width={26} height={48} priority className="h-12 w-auto" />
+            <RuneMark aria-hidden className="h-12 w-auto text-accent" />
             life-of-tyla
           </Link>
           {isOwner && (
