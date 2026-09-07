@@ -40,41 +40,34 @@ export function TodaySchedule({ events }: { events: CalendarEventRow[] }) {
         {todayEvents.length === 0 ? (
           <p className="mt-5 text-sm text-muted">Nothing on the calendar today.</p>
         ) : (
-          <div className="relative mt-6 pl-8">
-            <svg
-              aria-hidden
-              className="absolute top-1 bottom-1 left-1.5 w-1 stroke-muted/35"
-              viewBox="0 0 4 400"
-              preserveAspectRatio="none"
-            >
-              <path
-                d="M2,0 C1,50 3,100 2,150 C1,200 3,250 2,300 C1,350 3,380 2,400"
-                strokeWidth="2"
-                fill="none"
-                strokeLinecap="round"
-              />
-            </svg>
-            <ul className="space-y-7">
-              {todayEvents.map((event) => {
-                const isPast = !event.allDay && event.end <= now;
-                const isNext = event.id === nextEventId;
-                return (
-                  <li key={event.id} className={`relative ${isPast ? "opacity-40" : ""}`}>
+          <ul className="mt-6 space-y-7">
+            {todayEvents.map((event, index) => {
+              const isPast = !event.allDay && event.end <= now;
+              const isNext = event.id === nextEventId;
+              const isLast = index === todayEvents.length - 1;
+              return (
+                <li key={event.id} className={`relative pl-8 ${isPast ? "opacity-40" : ""}`}>
+                  {!isLast && (
                     <span
-                      className={`absolute top-1 -left-[27px] h-2.5 w-2.5 rounded-full border-2 border-paper ${
-                        isNext ? "bg-accent ring-4 ring-accent/15" : "bg-muted/50"
-                      }`}
+                      aria-hidden
+                      className="absolute top-3 left-[3px] w-0.5 bg-muted/25"
+                      style={{ height: "calc(100% + 1.75rem)" }}
                     />
-                    <span className={`font-hand block text-sm ${isNext ? "text-accent" : "text-muted"}`}>
-                      {event.allDay ? "all day" : formatTime(event.start)}
-                    </span>
-                    <span className={isNext ? "font-semibold text-ink" : "text-ink"}>{event.title}</span>
-                    {event.location && <span className="ml-2 text-sm text-muted">{event.location}</span>}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+                  )}
+                  <span
+                    className={`absolute top-1 left-0 h-2 w-2 rounded-full border-2 border-paper ${
+                      isNext ? "bg-accent ring-4 ring-accent/15" : "bg-muted/50"
+                    }`}
+                  />
+                  <span className={`font-hand block text-sm ${isNext ? "text-accent" : "text-muted"}`}>
+                    {event.allDay ? "all day" : formatTime(event.start)}
+                  </span>
+                  <span className={isNext ? "font-semibold text-ink" : "text-ink"}>{event.title}</span>
+                  {event.location && <span className="ml-2 text-sm text-muted">{event.location}</span>}
+                </li>
+              );
+            })}
+          </ul>
         )}
 
         {gapMessage && <p className="mt-5 text-sm text-muted italic">{gapMessage}</p>}
