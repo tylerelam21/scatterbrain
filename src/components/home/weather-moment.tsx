@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react";
 import { WeatherIcon } from "./weather-icons";
 
-// The one "fun visual" flourish on Home — a condition icon rather than
-// another line of small gray text. A custom line-icon set (see
-// weather-icons.tsx) instead of emoji, which render inconsistently across
-// platforms and didn't match the rest of the site's custom iconography.
-// Ticks its own clock client-side for the same reason as everywhere else:
-// the viewer's real local time, not the server's.
+// A compact utility readout, not a competing content block — a small
+// condition icon (see weather-icons.tsx, a custom set replacing emoji,
+// which render inconsistently across platforms) plus one line of muted
+// text, top-aligned with the day label rather than stacked as its own
+// tall element. Ticks its own clock client-side for the same reason as
+// everywhere else: the viewer's real local time, not the server's.
 export function WeatherMoment({
   city,
   tempF,
@@ -37,13 +37,12 @@ export function WeatherMoment({
   );
 
   return (
-    <div className="shrink-0 text-right">
-      <WeatherIcon code={weatherCode} className="ml-auto h-9 w-9 text-muted" />
-      <p className="mt-2 text-sm text-muted">
-        {city}
-        {tempF !== null && ` · ${tempF}°`}
-      </p>
-      <p className="text-sm text-muted">{timeLabel}</p>
+    <div className="flex shrink-0 items-center gap-1.5 text-xs text-muted">
+      <WeatherIcon code={weatherCode} className="h-4 w-4" />
+      <span>
+        {tempF !== null && `${tempF}° · `}
+        {city} · {timeLabel}
+      </span>
     </div>
   );
 }

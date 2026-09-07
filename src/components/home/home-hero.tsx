@@ -9,10 +9,14 @@ const TAGLINES = [
   "Let's see what today has for you.",
   "Nothing figured out yet. Good.",
   "Today's blank enough to fill.",
-  "That there's some good in the world, and it's worth fighting for.",
   "Still paying attention.",
   "Onward, unhurried.",
 ];
+
+// A fixed signature line rather than one entry in the rotation — it carries
+// too much personal weight to be sized/treated the same as "Onward,
+// unhurried." and shown one day in six.
+const SIGNATURE_LINE = "That there's some good in the world, and it's worth fighting for.";
 
 export function HomeHero() {
   const now = new Date();
@@ -32,8 +36,11 @@ export function HomeHero() {
       <h1 className="font-display text-7xl leading-none tracking-tight text-ink sm:text-8xl">
         {monthDay}
       </h1>
-      <p className="mt-3 text-lg text-muted">
-        {timeGreeting} <span className="font-hand text-xl text-accent">{tagline}</span>
+      <p className="mt-4 text-lg text-muted">
+        {timeGreeting} <span className="font-hand text-lg text-muted/80">{tagline}</span>
+      </p>
+      <p className="font-hand mt-2 max-w-xl text-2xl leading-snug text-accent sm:text-3xl">
+        {SIGNATURE_LINE}
       </p>
     </div>
   );

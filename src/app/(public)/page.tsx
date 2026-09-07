@@ -41,12 +41,12 @@ export default async function Home() {
 
     return (
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-20">
-        <div className="flex items-start justify-between gap-8">
+        <div className="flex items-baseline justify-between gap-8">
           <HomeHero />
           <WeatherMoment city={HOME_CITY} tempF={weather.tempF} weatherCode={weather.weatherCode} />
         </div>
 
-        <div className="mt-16 grid grid-cols-1 gap-x-20 gap-y-16 lg:grid-cols-2">
+        <div className="mt-16 grid grid-cols-1 gap-x-16 gap-y-16 lg:grid-cols-[360px_1fr]">
           <div className="min-w-0">
             <QuickCapture />
 
