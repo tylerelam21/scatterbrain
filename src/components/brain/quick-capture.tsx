@@ -12,12 +12,15 @@ export function QuickCapture() {
   const formRef = useRef<HTMLFormElement>(null);
 
   return (
-    <form ref={formRef} action={formAction} className="w-full">
-      <div className="relative">
+    <form ref={formRef} action={formAction} className="w-full max-w-[320px]">
+      <div
+        className="relative -rotate-2 bg-[#f3dd8f] p-5 pb-8 shadow-[3px_6px_14px_rgba(23,20,15,0.18)] transition-transform duration-300 ease-out focus-within:rotate-0"
+        style={{ color: "#3a2f10" }}
+      >
         <textarea
           name="content"
           placeholder="What's on your mind?"
-          rows={1}
+          rows={2}
           required
           autoComplete="off"
           onKeyDown={(event) => {
@@ -26,19 +29,19 @@ export function QuickCapture() {
               formRef.current?.requestSubmit();
             }
           }}
-          className="w-full resize-none border-b border-border bg-transparent py-2 pr-8 text-lg text-ink placeholder:text-muted/70 focus:outline-none"
+          className="font-hand w-full resize-none bg-transparent text-xl leading-snug outline-none placeholder:text-[#3a2f10]/50"
         />
-        <span aria-hidden className="absolute right-0 bottom-2 text-muted">
+        <span aria-hidden className="absolute right-4 bottom-2 font-hand text-lg text-[#3a2f10]/40">
           ↵
         </span>
-      </div>
-      <div aria-live="polite" className="mt-1 h-4 text-xs text-muted">
-        {isPending && "Saving…"}
-        {!isPending && state.ok && state.savedAt > 0 && (
-          <span key={state.savedAt} className="qc-saved-message">
-            Saved.
-          </span>
-        )}
+        <div aria-live="polite" className="font-hand absolute bottom-2 left-5 h-5 text-sm text-[#3a2f10]/70">
+          {isPending && "saving…"}
+          {!isPending && state.ok && state.savedAt > 0 && (
+            <span key={state.savedAt} className="qc-saved-message">
+              saved.
+            </span>
+          )}
+        </div>
       </div>
     </form>
   );
