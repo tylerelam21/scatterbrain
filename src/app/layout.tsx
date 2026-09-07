@@ -30,8 +30,8 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: "scatterbrain",
-  description: "Portfolio, journal, calendar, and brain in one place.",
+  title: "life-of-tyla",
+  description: "Tyler Elam's personal hub — journal, calendar, ideas, work, and photography.",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {

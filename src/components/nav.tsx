@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Session } from "next-auth";
 import { signIn, signOut } from "@/lib/auth";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -23,8 +24,9 @@ export function Nav({ session }: { session: Session | null }) {
     <header className="border-b border-border">
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-6 px-6 py-5">
         <div className="flex min-w-0 items-center gap-4">
-          <Link href="/" className="shrink-0 text-sm tracking-tight text-ink">
-            scatterbrain
+          <Link href="/" className="flex shrink-0 items-center gap-2 text-sm tracking-tight text-ink">
+            <Image src="/brand/rune-mark-transparent.png" alt="" width={14} height={26} priority className="h-[1.6em] w-auto" />
+            life-of-tyla
           </Link>
           {isOwner && (
             <form action="/search" method="get" className="min-w-0">
