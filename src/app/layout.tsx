@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Caveat, Fraunces, Geist, Geist_Mono } from "next/font/google";
+import { Fraunces, Geist, Geist_Mono, Kalam } from "next/font/google";
 import Script from "next/script";
 import { auth } from "@/lib/auth";
 import { Nav } from "@/components/nav";
@@ -24,8 +24,9 @@ const fraunces = Fraunces({
   axes: ["opsz", "SOFT"],
 });
 
-const caveat = Caveat({
-  variable: "--font-caveat",
+const kalam = Kalam({
+  variable: "--font-kalam",
+  weight: "700",
   subsets: ["latin"],
 });
 
@@ -40,7 +41,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${caveat.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${fraunces.variable} ${kalam.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-paper text-ink">
         <Script id="theme-init" strategy="beforeInteractive">
