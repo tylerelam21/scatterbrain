@@ -1,10 +1,13 @@
 import type { SVGProps } from "react";
 
 // Hand-built icon set for the homepage World section — bold single-color
-// silhouettes in the same spirit as RuneMark, not literal illustrations.
-// Each is a filled currentColor shape with a couple of subtractive details
-// punched out in the page's own paper color, so they need no per-theme
-// variants and no raster/blend-mode handling.
+// silhouettes in the same spirit as the site's brand mark, not literal
+// illustrations. Each is a filled currentColor shape with a couple of
+// subtractive details punched out in the page's own paper color, so they
+// need no per-theme variants and no raster/blend-mode handling.
+//
+// The door object reuses DoorMark (src/components/brand/door-mark.tsx),
+// the site's actual logo, rather than a separate glyph of its own.
 
 export function PaintbrushIcon(props: SVGProps<SVGSVGElement>) {
   return (
@@ -14,20 +17,6 @@ export function PaintbrushIcon(props: SVGProps<SVGSVGElement>) {
         <rect x="35" y="29" width="30" height="15" rx="2" />
         <rect x="42" y="42" width="16" height="90" rx="8" />
       </g>
-    </svg>
-  );
-}
-
-export function DoorIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" {...props}>
-      <circle cx="50" cy="52" r="46" fill="currentColor" />
-      <g stroke="var(--paper)" strokeWidth="2.5" strokeLinecap="round">
-        <line x1="34" y1="14" x2="34" y2="90" />
-        <line x1="50" y1="8" x2="50" y2="96" />
-        <line x1="66" y1="14" x2="66" y2="90" />
-      </g>
-      <circle cx="38" cy="52" r="5" fill="var(--paper)" />
     </svg>
   );
 }

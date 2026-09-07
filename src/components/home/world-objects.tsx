@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ComponentType, SVGProps } from "react";
-import { DoorIcon, NotebookIcon, PaintbrushIcon } from "./world-icons";
+import { DoorMark } from "@/components/brand/door-mark";
+import { NotebookIcon, PaintbrushIcon } from "./world-icons";
 
 // The "World" section of the outward-facing homepage — see
 // docs/OUTWARD-FACING-PORTFOLIO.md §3. Navigation discovered by exploring
@@ -85,7 +86,7 @@ export function WorldObjects() {
       />
       <WorldIcon href="/lab" Icon={NotebookIcon} alt="Notes from the workshop" heightClass="h-28 sm:h-36" />
       <WorldIcon href="/work" Icon={PaintbrushIcon} alt="Work" heightClass="h-28 sm:h-36" />
-      <WorldIcon Icon={DoorIcon} alt="A round door" heightClass="h-36 sm:h-48" />
+      <WorldIcon Icon={DoorMark} alt="A round door" heightClass="h-36 sm:h-48" />
     </div>
   );
 }
