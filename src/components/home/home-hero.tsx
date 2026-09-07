@@ -9,7 +9,7 @@ const TAGLINES = [
   "Let's see what today has for you.",
   "Nothing figured out yet. Good.",
   "Today's blank enough to fill.",
-  "Whatever today is, it's yours.",
+  "That there's some good in the world, and it's worth fighting for.",
   "Still paying attention.",
   "Onward, unhurried.",
 ];
