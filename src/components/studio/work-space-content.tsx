@@ -2,6 +2,7 @@ import { listAllProjects } from "@/lib/db/queries/work";
 import { createProject } from "@/server/actions/work";
 import { ProjectCard } from "@/components/work/project-card";
 import { WorkBrainstorm } from "@/components/work/work-brainstorm";
+import { PegboardHeader } from "@/components/studio/pegboard-header";
 
 // Everything work-related in one place, reachable from the owner's own
 // nav (Studio) instead of only on the public /work page, which the
@@ -12,13 +13,9 @@ export async function WorkSpaceContent({ ownerId }: { ownerId: string }) {
 
   return (
     <div>
-      {/* eslint-disable-next-line @next/next/no-img-element -- fixed static illustration, not a photo needing next/image optimization */}
-      <img
-        src="/work/pegboard.webp"
-        alt="An illustrated pegboard of painting and hand tools"
-        className="mb-10 block w-full h-auto rounded-lg select-none"
-        draggable={false}
-      />
+      <div className="mb-10">
+        <PegboardHeader />
+      </div>
 
       <WorkBrainstorm ownerId={ownerId} />
 
