@@ -2,14 +2,11 @@
 
 import Link from "next/link";
 import { addDays, isSameDay, startOfWeek, toDateParam } from "@/lib/calendar/dates";
+import { eventColor } from "@/lib/calendar/colors";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const MAX_VISIBLE_PER_DAY = 3;
-
-function eventColor(event: CalendarEventRow): string {
-  return event.calendarColor || event.calendarProviderColor || "var(--accent)";
-}
 
 interface MonthViewProps {
   monthAnchor: Date;

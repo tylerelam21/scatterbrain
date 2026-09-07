@@ -3,13 +3,10 @@
 import Link from "next/link";
 import { endOfDay, formatTime, isSameDay, startOfDay, toDateParam } from "@/lib/calendar/dates";
 import { layoutTimedEvents } from "@/lib/calendar/layout";
+import { eventColor } from "@/lib/calendar/colors";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
-
-function eventColor(event: CalendarEventRow): string {
-  return event.calendarColor || event.calendarProviderColor || "var(--accent)";
-}
 
 function formatDayLabel(date: Date): { weekday: string; day: string } {
   return {

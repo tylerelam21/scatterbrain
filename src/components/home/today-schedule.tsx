@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { addDays, endOfDay, formatTime, isSameDay } from "@/lib/calendar/dates";
+import { eventColor } from "@/lib/calendar/colors";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 
 // PRD §10.3-10.4 — today's events plus a short upcoming horizon, computed
@@ -11,7 +12,9 @@ import type { CalendarEventRow } from "@/lib/calendar/types";
 // Today's list renders as a timeline thread rather than a plain list: a
 // hand-drawn connecting line, past events fading out, and whatever's next
 // picked out in the accent color — the day visibly progressing rather than
-// a static printout.
+// a static printout. Each dot picks up its own calendar's color (same
+// source as the Calendar grid views) rather than one flat gray, so the
+// list isn't monochrome.
 export function TodaySchedule({ events }: { events: CalendarEventRow[] }) {
   const now = new Date();
 
@@ -56,8 +59,9 @@ export function TodaySchedule({ events }: { events: CalendarEventRow[] }) {
                   )}
                   <span
                     className={`absolute top-1 left-0 h-2 w-2 rounded-full border-2 border-paper ${
-                      isNext ? "bg-accent ring-4 ring-accent/15" : "bg-muted"
+                      isNext ? "ring-4 ring-accent/15" : ""
                     }`}
+                    style={{ backgroundColor: eventColor(event) }}
                   />
                   <span className={`font-hand block text-sm ${isNext ? "text-accent" : "text-muted"}`}>
                     {event.allDay ? "all day" : formatTime(event.start)}
@@ -81,15 +85,22 @@ export function TodaySchedule({ events }: { events: CalendarEventRow[] }) {
               View calendar →
             </Link>
           </div>
-          <ul className="mt-5 space-y-4">
+          <ul className="mt-5 divide-y divide-border">
             {upcomingEvents.map((event) => (
               <li key={event.id}>
                 <Link
                   href={`/calendar?event=${event.id}`}
-                  className="group flex items-baseline justify-between gap-4"
+                  className="group -mx-3 flex items-baseline justify-between gap-4 rounded px-3 py-3 transition-colors hover:bg-border"
                 >
-                  <span className="min-w-0 truncate text-ink transition-colors group-hover:text-accent">
-                    {event.title}
+                  <span className="flex min-w-0 items-baseline gap-2.5">
+                    <span
+                      aria-hidden
+                      className="h-1.5 w-1.5 shrink-0 translate-y-[-1px] rounded-full"
+                      style={{ backgroundColor: eventColor(event) }}
+                    />
+                    <span className="min-w-0 truncate text-ink transition-colors group-hover:text-accent">
+                      {event.title}
+                    </span>
                   </span>
                   <span className="shrink-0 text-xs text-muted transition-colors group-hover:text-accent">
                     {new Intl.DateTimeFormat(undefined, {
