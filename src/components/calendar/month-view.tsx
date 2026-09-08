@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { addDays, isSameAllDayDate, isSameDay, startOfWeek, toDateParam } from "@/lib/calendar/dates";
-import { eventColor } from "@/lib/calendar/colors";
+import { eventColor, eventTextClass } from "@/lib/calendar/colors";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 
 const WEEKDAY_LABELS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -62,15 +62,18 @@ export function MonthView({ monthAnchor, events }: MonthViewProps) {
                 {day.getDate()}
               </span>
               <div className="mt-1 space-y-0.5">
-                {visible.map((event) => (
-                  <div
-                    key={event.id}
-                    className="truncate rounded-sm px-1 py-0.5 text-[10px] text-paper"
-                    style={{ backgroundColor: eventColor(event) }}
-                  >
-                    {event.title}
-                  </div>
-                ))}
+                {visible.map((event) => {
+                  const color = eventColor(event);
+                  return (
+                    <div
+                      key={event.id}
+                      className={`truncate rounded-sm px-1 py-0.5 text-[10px] ${eventTextClass(color)}`}
+                      style={{ backgroundColor: color }}
+                    >
+                      {event.title}
+                    </div>
+                  );
+                })}
                 {overflow > 0 && <p className="text-[10px] text-muted">+{overflow} more</p>}
               </div>
             </Link>

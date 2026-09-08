@@ -11,7 +11,7 @@ import {
   toDateParam,
 } from "@/lib/calendar/dates";
 import { layoutTimedEvents } from "@/lib/calendar/layout";
-import { eventColor } from "@/lib/calendar/colors";
+import { eventColor, eventTextClass } from "@/lib/calendar/colors";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
@@ -112,18 +112,19 @@ export function TimeGridView({ days, events, view, defaultCalendarId }: TimeGrid
                   const top = (startMin / 1440) * 100;
                   const height = Math.max(((endMin - startMin) / 1440) * 100, 2.2);
                   const width = 100 / columnCount;
+                  const color = eventColor(event);
 
                   return (
                     <Link
                       key={event.id}
                       href={buildEventHref(event.id, view, day)}
-                      className="absolute overflow-hidden rounded-sm px-1.5 py-0.5 text-[11px] leading-tight text-paper shadow-sm"
+                      className={`absolute overflow-hidden rounded-sm px-1.5 py-0.5 text-[11px] leading-tight shadow-sm ${eventTextClass(color)}`}
                       style={{
                         top: `${top}%`,
                         height: `${height}%`,
                         left: `${column * width}%`,
                         width: `calc(${width}% - 2px)`,
-                        backgroundColor: eventColor(event),
+                        backgroundColor: color,
                       }}
                     >
                       <span className="font-medium">{event.title}</span>
@@ -141,11 +142,12 @@ export function TimeGridView({ days, events, view, defaultCalendarId }: TimeGrid
 }
 
 function EventChip({ event, view }: { event: CalendarEventRow; view: "week" | "day" }) {
+  const color = eventColor(event);
   return (
     <Link
       href={buildEventHref(event.id, view, event.start)}
-      className="block truncate rounded-sm px-1.5 py-0.5 text-[11px] text-paper"
-      style={{ backgroundColor: eventColor(event) }}
+      className={`block truncate rounded-sm px-1.5 py-0.5 text-[11px] ${eventTextClass(color)}`}
+      style={{ backgroundColor: color }}
     >
       {event.title}
     </Link>
