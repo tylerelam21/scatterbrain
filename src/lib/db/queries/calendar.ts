@@ -22,6 +22,15 @@ export async function listCalendarConnections(userId: string) {
   });
 }
 
+// Unscoped by user — for the cron sync job, which runs with no session and
+// refreshes every connection in the system (there's only ever one owner
+// today, but this doesn't assume that).
+export async function listAllCalendarConnections() {
+  return db.query.calendarConnections.findMany({
+    where: eq(calendarConnections.status, "CONNECTED"),
+  });
+}
+
 export async function getCalendarConnectionById(userId: string, id: string) {
   return db.query.calendarConnections.findFirst({
     where: and(eq(calendarConnections.id, id), eq(calendarConnections.userId, userId)),
