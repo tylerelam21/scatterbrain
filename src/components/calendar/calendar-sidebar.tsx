@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import type { CalendarRow } from "@/lib/calendar/types";
 import { setCalendarColor, setCalendarEnabled, syncCalendarConnectionNow } from "@/server/actions/calendar";
+import { calendarColorFor } from "@/lib/calendar/colors";
 
 export function CalendarSidebar({ calendars }: { calendars: CalendarRow[] }) {
   const router = useRouter();
@@ -47,7 +48,11 @@ export function CalendarSidebar({ calendars }: { calendars: CalendarRow[] }) {
               />
               <input
                 type="color"
-                value={calendar.customColor || calendar.providerColor || "#2c502c"}
+                value={calendarColorFor({
+                  name: calendar.name,
+                  customColor: calendar.customColor,
+                  providerColor: calendar.providerColor,
+                })}
                 disabled={isPending}
                 onChange={(event) => {
                   const color = event.target.value;

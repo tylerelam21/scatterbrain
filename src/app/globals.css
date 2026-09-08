@@ -8,8 +8,11 @@
   --ink: #17140f;
   --muted: #6b6558;
   --border: rgba(23, 20, 15, 0.1);
-  /* Bilbo's door — sampled directly from the reference art. */
-  --accent: #2c502c;
+  /* Bilbo's door — sampled from the reference art, then muted slightly
+     (same hue/lightness, less saturated) so it reads calmer as the one
+     color used everywhere in the UI, distinct from any single calendar's
+     own color (see colors.ts). */
+  --accent: #365136;
   /* "Find the best move" board — restrained warm neutrals, deliberately
      not chess-site green. */
   --chess-light: #f2efe8;

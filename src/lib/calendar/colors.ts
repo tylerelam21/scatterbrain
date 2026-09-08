@@ -6,10 +6,11 @@ import type { CalendarEventRow } from "./types";
 // Matched by a case-insensitive pattern against the calendar's own name,
 // which for a personal Google account's primary calendar is just its
 // inbox address (that's why "gmail.com" works as the personal match).
-// Work gets the site's own accent green — the color you're already most
-// used to seeing and least likely to miss.
+// Work gets Terminus's own dark teal (sampled from the company logo) —
+// its own identity, distinct from the site's (now more muted) accent
+// green and from Personal's blue.
 const NAME_COLOR_HINTS: { match: RegExp; bg: string }[] = [
-  { match: /terminus|work/i, bg: "#2c502c" },
+  { match: /terminus|work/i, bg: "#14698c" },
   { match: /gmail\.com/i, bg: "#3d5a73" },
   { match: /christ|covenant|church/i, bg: "#7a4a2e" },
   { match: /holiday/i, bg: "#c9982f" },
@@ -26,15 +27,28 @@ function curatedColorFor(calendarName: string): string | undefined {
 
 // A calendar's own color (custom override in Settings), else a curated
 // default keyed by calendar name, else Google's own color, else neutral.
+// Shared by every place that resolves a calendar's color — event chips
+// (via eventColor below) and the color picker in the calendar sidebar,
+// so what the picker shows as "current" always matches what's actually
+// rendered on events.
+export function calendarColorFor(calendar: {
+  name: string;
+  customColor: string | null;
+  providerColor: string | null;
+}): string {
+  return (
+    calendar.customColor || curatedColorFor(calendar.name) || calendar.providerColor || UNCATEGORIZED_COLOR
+  );
+}
+
 // Shared by every place that renders events with their calendar's color —
 // the grid views and Home's schedule.
 export function eventColor(event: CalendarEventRow): string {
-  return (
-    event.calendarColor ||
-    curatedColorFor(event.calendarName) ||
-    event.calendarProviderColor ||
-    UNCATEGORIZED_COLOR
-  );
+  return calendarColorFor({
+    name: event.calendarName,
+    customColor: event.calendarColor,
+    providerColor: event.calendarProviderColor,
+  });
 }
 
 function hexToRgb(hex: string): [number, number, number] | null {
