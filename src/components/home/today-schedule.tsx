@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { addDays, endOfDay, formatTime, isSameDay } from "@/lib/calendar/dates";
+import { addDays, endOfDay, formatTime, isSameAllDayDate, isSameDay } from "@/lib/calendar/dates";
 import { eventColor } from "@/lib/calendar/colors";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 
@@ -19,7 +19,7 @@ export function TodaySchedule({ events }: { events: CalendarEventRow[] }) {
   const now = new Date();
 
   const todayEvents = events
-    .filter((e) => isSameDay(e.start, now))
+    .filter((e) => (e.allDay ? isSameAllDayDate(e.start, now) : isSameDay(e.start, now)))
     .sort((a, b) => a.start.getTime() - b.start.getTime());
 
   const upcomingEvents = events

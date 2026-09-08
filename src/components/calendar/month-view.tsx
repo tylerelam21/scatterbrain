@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { addDays, isSameDay, startOfWeek, toDateParam } from "@/lib/calendar/dates";
+import { addDays, isSameAllDayDate, isSameDay, startOfWeek, toDateParam } from "@/lib/calendar/dates";
 import { eventColor } from "@/lib/calendar/colors";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 
@@ -43,7 +43,7 @@ export function MonthView({ monthAnchor, events }: MonthViewProps) {
           const inMonth = day.getMonth() === monthAnchor.getMonth();
           const isToday = isSameDay(day, today);
           const dayEvents = events
-            .filter((e) => isSameDay(e.start, day) || (e.allDay && isSameDay(e.start, day)))
+            .filter((e) => (e.allDay ? isSameAllDayDate(e.start, day) : isSameDay(e.start, day)))
             .sort((a, b) => a.start.getTime() - b.start.getTime());
           const visible = dayEvents.slice(0, MAX_VISIBLE_PER_DAY);
           const overflow = dayEvents.length - visible.length;

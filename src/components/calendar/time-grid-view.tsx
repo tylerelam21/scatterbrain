@@ -1,12 +1,22 @@
 "use client";
 
 import Link from "next/link";
-import { endOfDay, formatTime, isSameDay, startOfDay, toDateParam } from "@/lib/calendar/dates";
+import { useEffect, useRef } from "react";
+import {
+  endOfDay,
+  formatTime,
+  isSameAllDayDate,
+  isSameDay,
+  startOfDay,
+  toDateParam,
+} from "@/lib/calendar/dates";
 import { layoutTimedEvents } from "@/lib/calendar/layout";
 import { eventColor } from "@/lib/calendar/colors";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 
 const HOURS = Array.from({ length: 24 }, (_, hour) => hour);
+const HOUR_ROW_HEIGHT_PX = 48; // matches the h-12 rows below
+const INITIAL_SCROLL_HOUR = 5;
 
 function formatDayLabel(date: Date): { weekday: string; day: string } {
   return {
@@ -24,6 +34,13 @@ interface TimeGridViewProps {
 
 export function TimeGridView({ days, events, view, defaultCalendarId }: TimeGridViewProps) {
   const today = new Date();
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  // Land on a reasonable hour instead of midnight — nobody wants to scroll
+  // past four empty hours to find the actual day.
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: INITIAL_SCROLL_HOUR * HOUR_ROW_HEIGHT_PX });
+  }, []);
 
   return (
     <div className="mt-6 overflow-x-auto">
@@ -49,7 +66,7 @@ export function TimeGridView({ days, events, view, defaultCalendarId }: TimeGrid
 
         <div className="pt-2 text-right text-xs text-muted">All day</div>
         {days.map((day) => {
-          const allDayEvents = events.filter((e) => e.allDay && isSameDay(e.start, day));
+          const allDayEvents = events.filter((e) => e.allDay && isSameAllDayDate(e.start, day));
           return (
             <div key={`allday-${day.toISOString()}`} className="min-h-[28px] space-y-1 pt-2">
               {allDayEvents.map((event) => (
@@ -60,62 +77,64 @@ export function TimeGridView({ days, events, view, defaultCalendarId }: TimeGrid
         })}
       </div>
 
-      <div
-        className="relative mt-2 grid min-w-[640px]"
-        style={{ gridTemplateColumns: `48px repeat(${days.length}, 1fr)` }}
-      >
-        <div>
-          {HOURS.map((hour) => (
-            <div key={hour} className="h-12 -translate-y-2 pr-2 text-right text-[10px] text-muted">
-              {hour === 0 ? "" : formatTime(new Date(2000, 0, 1, hour))}
-            </div>
-          ))}
-        </div>
+      <div ref={scrollRef} className="max-h-[576px] overflow-y-auto">
+        <div
+          className="relative mt-2 grid min-w-[640px]"
+          style={{ gridTemplateColumns: `48px repeat(${days.length}, 1fr)` }}
+        >
+          <div>
+            {HOURS.map((hour) => (
+              <div key={hour} className="h-12 -translate-y-2 pr-2 text-right text-[10px] text-muted">
+                {hour === 0 ? "" : formatTime(new Date(2000, 0, 1, hour))}
+              </div>
+            ))}
+          </div>
 
-        {days.map((day) => {
-          const dayEvents = events.filter(
-            (e) => !e.allDay && e.start < endOfDay(day) && e.end > startOfDay(day),
-          );
-          const positioned = layoutTimedEvents(dayEvents);
+          {days.map((day) => {
+            const dayEvents = events.filter(
+              (e) => !e.allDay && e.start < endOfDay(day) && e.end > startOfDay(day),
+            );
+            const positioned = layoutTimedEvents(dayEvents);
 
-          return (
-            <div key={day.toISOString()} className="relative border-l border-border">
-              {HOURS.map((hour) => (
-                <Link
-                  key={hour}
-                  href={buildCreateHref(day, hour, view, defaultCalendarId)}
-                  className="block h-12 border-b border-border/60 hover:bg-border/30"
-                />
-              ))}
-
-              {positioned.map(({ event, column, columnCount }) => {
-                const startMin = Math.max(0, minutesFromMidnight(event.start, day));
-                const endMin = Math.min(1440, minutesFromMidnight(event.end, day, true));
-                const top = (startMin / 1440) * 100;
-                const height = Math.max(((endMin - startMin) / 1440) * 100, 2.2);
-                const width = 100 / columnCount;
-
-                return (
+            return (
+              <div key={day.toISOString()} className="relative border-l border-border">
+                {HOURS.map((hour) => (
                   <Link
-                    key={event.id}
-                    href={buildEventHref(event.id, view, day)}
-                    className="absolute overflow-hidden rounded-sm px-1.5 py-0.5 text-[11px] leading-tight text-paper shadow-sm"
-                    style={{
-                      top: `${top}%`,
-                      height: `${height}%`,
-                      left: `${column * width}%`,
-                      width: `calc(${width}% - 2px)`,
-                      backgroundColor: eventColor(event),
-                    }}
-                  >
-                    <span className="font-medium">{event.title}</span>
-                    <span className="block opacity-80">{formatTime(event.start)}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          );
-        })}
+                    key={hour}
+                    href={buildCreateHref(day, hour, view, defaultCalendarId)}
+                    className="block h-12 border-b border-border/60 hover:bg-border/30"
+                  />
+                ))}
+
+                {positioned.map(({ event, column, columnCount }) => {
+                  const startMin = Math.max(0, minutesFromMidnight(event.start, day));
+                  const endMin = Math.min(1440, minutesFromMidnight(event.end, day, true));
+                  const top = (startMin / 1440) * 100;
+                  const height = Math.max(((endMin - startMin) / 1440) * 100, 2.2);
+                  const width = 100 / columnCount;
+
+                  return (
+                    <Link
+                      key={event.id}
+                      href={buildEventHref(event.id, view, day)}
+                      className="absolute overflow-hidden rounded-sm px-1.5 py-0.5 text-[11px] leading-tight text-paper shadow-sm"
+                      style={{
+                        top: `${top}%`,
+                        height: `${height}%`,
+                        left: `${column * width}%`,
+                        width: `calc(${width}% - 2px)`,
+                        backgroundColor: eventColor(event),
+                      }}
+                    >
+                      <span className="font-medium">{event.title}</span>
+                      <span className="block opacity-80">{formatTime(event.start)}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
