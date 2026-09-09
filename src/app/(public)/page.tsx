@@ -58,10 +58,12 @@ export default async function Home({ searchParams }: HomeProps) {
       ? Math.floor((today.getTime() - resurfaced.createdAt.getTime()) / 86_400_000)
       : null;
 
+    const firstName = owner.name?.trim().split(/\s+/)[0] || "there";
+
     return (
       <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-20">
-        <div className="flex items-baseline justify-between gap-8">
-          <HomeHero />
+        <div className="flex items-start justify-between gap-8">
+          <HomeHero firstName={firstName} />
           <WeatherMoment city={HOME_CITY} tempF={weather.tempF} weatherCode={weather.weatherCode} />
         </div>
 
