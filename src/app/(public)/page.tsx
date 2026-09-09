@@ -8,6 +8,7 @@ import { getTopTags } from "@/lib/db/queries/tags";
 import { getOwnerUser } from "@/lib/db/queries/users";
 import { getAppSettings } from "@/lib/db/queries/settings";
 import { listProjects } from "@/lib/db/queries/work";
+import { getRecentActivity } from "@/lib/home/activity";
 import { getCurrentWeather } from "@/lib/home/weather";
 import { HOME_CITY } from "@/lib/home/location";
 import { getPuzzleForCurrentHour } from "@/lib/db/queries/chess";
@@ -20,6 +21,7 @@ import { BestMove } from "@/components/chess/best-move";
 import { BrainMap } from "@/components/home/brain-map";
 import { PublicIdentity } from "@/components/home/public-identity";
 import { StickyNote, HeroAccent, ScrollCue } from "@/components/home/hero-ornaments";
+import { Lately } from "@/components/home/lately";
 import { FeaturedWork } from "@/components/home/featured-work";
 import { SiteFooter } from "@/components/home/site-footer";
 
@@ -119,11 +121,12 @@ export default async function Home({ searchParams }: HomeProps) {
   }
 
   const owner = await getOwnerUser();
-  const [content, featuredProjects] = await Promise.all([
+  const [content, featuredProjects, recentActivity] = await Promise.all([
     owner
       ? getAppSettings(owner.id, [...SITE_CONTENT_KEYS])
       : Promise.resolve({} as Record<string, string>),
     listProjects({ isLab: false, publicOnly: true }),
+    getRecentActivity(),
   ]);
   const stickyNote = content["home.stickyNote"] ?? "";
 
@@ -153,6 +156,7 @@ export default async function Home({ searchParams }: HomeProps) {
         )}
       </div>
 
+      <Lately activity={recentActivity} />
       <ScrollCue />
 
       <FeaturedWork

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { generateHTML } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
@@ -159,39 +160,69 @@ export default async function ProjectPage({
     : "";
 
   return (
-    <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
-      <p className="text-xs text-muted uppercase">{project.status}</p>
-      <h1 className="font-display mt-2 text-4xl tracking-tight text-ink">{project.title}</h1>
-      {project.tagline && <p className="mt-3 text-lg text-muted">{project.tagline}</p>}
+    <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-16">
+      <Link href="/work" className="text-xs text-muted hover:text-ink">
+        ← All work
+      </Link>
 
-      {technologies.length > 0 && (
-        <div className="mt-4 flex flex-wrap gap-2">
-          {technologies.map((tech) => (
-            <span key={tech.id} className="rounded-full border border-border px-3 py-1 text-xs text-muted">
-              {tech.name}
-            </span>
-          ))}
-        </div>
+      {project.heroImageId && (
+        // eslint-disable-next-line @next/next/no-img-element -- authorized, dynamically-owned photo served through /api/photos/[id]
+        <img
+          src={`/api/photos/${project.heroImageId}`}
+          alt=""
+          className="mt-6 block h-auto max-h-[480px] w-full rounded-lg object-cover"
+          style={{ boxShadow: "var(--note-shadow)" }}
+        />
       )}
 
-      {(project.liveUrl || project.repositoryUrl) && (
-        <div className="mt-4 flex gap-4 text-sm">
-          {project.liveUrl && (
-            <a href={project.liveUrl} target="_blank" rel="noreferrer" className="text-accent hover:underline">
-              Visit →
-            </a>
-          )}
-          {project.repositoryUrl && (
-            <a href={project.repositoryUrl} target="_blank" rel="noreferrer" className="text-accent hover:underline">
-              Source →
-            </a>
-          )}
-        </div>
-      )}
+      <div className="mx-auto max-w-2xl">
+        <p className="mt-8 text-xs text-muted uppercase">{project.status}</p>
+        <h1 className="font-display mt-2 text-4xl tracking-tight text-ink md:text-5xl">{project.title}</h1>
+        {project.tagline && <p className="mt-3 text-xl text-muted">{project.tagline}</p>}
 
-      {bodyHtml && (
-        <div className="journal-editor mt-10" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
-      )}
+        {technologies.length > 0 && (
+          <div className="mt-5 flex flex-wrap gap-2">
+            {technologies.map((tech) => (
+              <span key={tech.id} className="rounded-full border border-border px-3 py-1 text-xs text-muted">
+                {tech.name}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {(project.liveUrl || project.repositoryUrl) && (
+          <div className="mt-6 flex gap-3">
+            {project.liveUrl && (
+              <a
+                href={project.liveUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full bg-ink px-4 py-1.5 text-xs font-medium text-paper hover:bg-accent"
+              >
+                Visit live →
+              </a>
+            )}
+            {project.repositoryUrl && (
+              <a
+                href={project.repositoryUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="rounded-full border border-border px-4 py-1.5 text-xs text-muted hover:text-ink"
+              >
+                Source →
+              </a>
+            )}
+          </div>
+        )}
+
+        {project.summary && (
+          <p className="font-display mt-10 text-2xl leading-snug text-ink italic">{project.summary}</p>
+        )}
+
+        {bodyHtml && (
+          <div className="journal-editor mt-10" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+        )}
+      </div>
     </main>
   );
 }

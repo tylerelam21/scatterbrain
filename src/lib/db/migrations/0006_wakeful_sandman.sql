@@ -1,0 +1,1 @@
+ALTER TABLE "projects" ADD COLUMN "github_last_pushed_at" timestamp with time zone;

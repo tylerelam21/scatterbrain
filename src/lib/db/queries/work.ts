@@ -1,5 +1,5 @@
 import { createId } from "@paralleldrive/cuid2";
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, isNotNull } from "drizzle-orm";
 import { db } from "@/lib/db/client";
 import { projects, projectTechnologies } from "@/lib/db/schema";
 import type { ProjectContent, ProjectStatus } from "@/lib/work/constants";
@@ -40,6 +40,20 @@ export async function listAllProjects({ publicOnly }: { publicOnly: boolean }) {
     .from(projects)
     .where(conditions.length ? and(...conditions) : undefined)
     .orderBy(desc(projects.featured), asc(projects.sortOrder), desc(projects.createdAt));
+}
+
+// For the sync-github cron — every project pointed at a repo, regardless
+// of visibility, so the cached pushed_at doesn't go stale the moment a
+// draft goes public.
+export async function listProjectsWithRepo() {
+  return db
+    .select({ id: projects.id, repositoryUrl: projects.repositoryUrl })
+    .from(projects)
+    .where(isNotNull(projects.repositoryUrl));
+}
+
+export async function setGithubLastPushedAt(id: string, pushedAt: Date | null) {
+  await db.update(projects).set({ githubLastPushedAt: pushedAt }).where(eq(projects.id, id));
 }
 
 export async function getProjectBySlug(slug: string, { publicOnly }: { publicOnly: boolean }) {

@@ -28,6 +28,10 @@ export const projects = pgTable("projects", {
   liveUrl: text("live_url"),
   sortOrder: integer("sort_order").notNull().default(0),
   publishedAt: timestamp("published_at", { withTimezone: true }),
+  // Cached from GitHub's repo API (see lib/github), refreshed by the
+  // sync-github cron — repositoryUrl's `pushed_at`, i.e. when you last
+  // pushed code, independent of when you last edited this project's page.
+  githubLastPushedAt: timestamp("github_last_pushed_at", { withTimezone: true }),
   ...timestamps,
 });
 
