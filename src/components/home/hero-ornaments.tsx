@@ -19,7 +19,7 @@ export function StickyNote({ text, editable }: { text: string; editable: boolean
         <InlineEditable
           value={text}
           editable={editable}
-          onSave={(value) => setSiteContentField("home.stickyNote", value)}
+          onSave={setSiteContentField.bind(null, "home.stickyNote")}
           as="textarea"
           rows={3}
           placeholder="A short line, pinned next to your name"

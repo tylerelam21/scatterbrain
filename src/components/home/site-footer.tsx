@@ -27,7 +27,7 @@ export function SiteFooter({ bio, email, linkedin, github, editable }: SiteFoote
             <InlineEditable
               value={bio}
               editable={editable}
-              onSave={(value) => setSiteContentField("home.footerBio", value)}
+              onSave={setSiteContentField.bind(null, "home.footerBio")}
               placeholder="A sentence under 'Currently in Atlanta, Georgia.'"
               className="mt-1 text-sm text-muted"
             />

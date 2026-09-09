@@ -177,14 +177,14 @@ export function FeaturedWork({
                 number={number}
                 heading="About"
                 tagline={aboutTagline || ABOUT_TAGLINE_DEFAULT}
-                onSaveTagline={(value) => setSiteContentField("home.aboutTagline", value)}
+                onSaveTagline={setSiteContentField.bind(null, "home.aboutTagline")}
                 body={aboutBody || ABOUT_BODY_DEFAULT}
-                onSaveBody={(value) => setSiteContentField("home.aboutBody", value)}
+                onSaveBody={setSiteContentField.bind(null, "home.aboutBody")}
                 href="/about"
                 linkLabel="Read the story"
                 imageSide={imageSide}
                 annotation={aboutAnnotation}
-                onSaveAnnotation={(value) => setSiteContentField("home.aboutAnnotation", value)}
+                onSaveAnnotation={setSiteContentField.bind(null, "home.aboutAnnotation")}
                 editable={editable}
                 image={
                   // eslint-disable-next-line @next/next/no-img-element -- fixed static illustration, not a photo needing next/image optimization
@@ -206,11 +206,11 @@ export function FeaturedWork({
               key={project.id}
               number={number}
               heading={project.title}
-              onSaveHeading={(value) => updateProjectField(project.id, project.slug, "title", value)}
+              onSaveHeading={updateProjectField.bind(null, project.id, project.slug, "title")}
               tagline={project.tagline ?? ""}
-              onSaveTagline={(value) => updateProjectField(project.id, project.slug, "tagline", value)}
+              onSaveTagline={updateProjectField.bind(null, project.id, project.slug, "tagline")}
               body={project.summary ?? ""}
-              onSaveBody={(value) => updateProjectField(project.id, project.slug, "summary", value)}
+              onSaveBody={updateProjectField.bind(null, project.id, project.slug, "summary")}
               href={`/work/${project.slug}`}
               linkLabel="View project"
               imageSide={imageSide}
