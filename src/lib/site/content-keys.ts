@@ -6,6 +6,8 @@ export const SITE_CONTENT_KEYS = [
   "home.stickyNote",
   "home.footerBio",
   "home.aboutAnnotation",
+  "home.aboutTagline",
+  "home.aboutBody",
   "home.email",
   "home.linkedin",
   "home.github",

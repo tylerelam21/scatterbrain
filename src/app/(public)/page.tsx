@@ -145,9 +145,9 @@ export default async function Home({ searchParams }: HomeProps) {
 
       <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-start sm:justify-between">
         <PublicIdentity />
-        {stickyNote && (
+        {(stickyNote || isOwner) && (
           <div className="flex items-start gap-6">
-            <StickyNote text={stickyNote} />
+            <StickyNote text={stickyNote} editable={isOwner} />
             <HeroAccent />
           </div>
         )}
@@ -158,6 +158,9 @@ export default async function Home({ searchParams }: HomeProps) {
       <FeaturedWork
         projects={featuredProjects.filter((p) => p.featured)}
         aboutAnnotation={content["home.aboutAnnotation"] ?? ""}
+        aboutTagline={content["home.aboutTagline"] ?? ""}
+        aboutBody={content["home.aboutBody"] ?? ""}
+        editable={isOwner}
       />
 
       <SiteFooter
@@ -165,6 +168,7 @@ export default async function Home({ searchParams }: HomeProps) {
         email={content["home.email"] ?? ""}
         linkedin={content["home.linkedin"] ?? ""}
         github={content["home.github"] ?? ""}
+        editable={isOwner}
       />
     </main>
   );

@@ -1,10 +1,13 @@
 import { PaintDabsIcon } from "./world-icons";
+import { InlineEditable } from "./inline-editable";
+import { setSiteContentField } from "@/server/actions/site";
 
 // A small pinned note next to the hero — the one place on the outward
 // homepage the owner's own words show up unprompted, rather than
-// something I drafted. Only ever rendered when home.stickyNote is set
-// (see Settings → Homepage); no placeholder text pretending to be final.
-export function StickyNote({ text }: { text: string }) {
+// something I drafted. Rendered whenever home.stickyNote is set, or the
+// owner is looking at the public view and can click to add one — no
+// placeholder text pretending to be final for anyone else.
+export function StickyNote({ text, editable }: { text: string; editable: boolean }) {
   return (
     <div className="w-56 shrink-0 -rotate-2" style={{ boxShadow: "var(--note-shadow)" }}>
       <span
@@ -13,7 +16,15 @@ export function StickyNote({ text }: { text: string }) {
         style={{ backgroundColor: "rgba(216, 205, 176, 0.85)" }}
       />
       <div className="px-5 pt-6 pb-7" style={{ backgroundColor: "#f3ead2" }}>
-        <p className="font-hand text-lg leading-snug text-ink">{text}</p>
+        <InlineEditable
+          value={text}
+          editable={editable}
+          onSave={(value) => setSiteContentField("home.stickyNote", value)}
+          as="textarea"
+          rows={3}
+          placeholder="A short line, pinned next to your name"
+          className="font-hand text-lg leading-snug text-ink"
+        />
         <span aria-hidden className="mt-3 block h-0.5 w-10 bg-ink/25" />
       </div>
     </div>

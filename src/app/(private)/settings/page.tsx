@@ -155,6 +155,26 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
             />
           </label>
           <label className="block">
+            <span className="text-xs text-muted">About tagline</span>
+            <input
+              type="text"
+              name="home.aboutTagline"
+              defaultValue={siteContent["home.aboutTagline"] ?? ""}
+              placeholder="The long way here."
+              className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs text-muted">About body</span>
+            <textarea
+              name="home.aboutBody"
+              rows={3}
+              defaultValue={siteContent["home.aboutBody"] ?? ""}
+              placeholder="Alpharetta → Athens → Atlanta. A story about where I came from, what I care about, and why I make things."
+              className="mt-1 w-full resize-none border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+            />
+          </label>
+          <label className="block">
             <span className="text-xs text-muted">Footer bio line</span>
             <input
               type="text"

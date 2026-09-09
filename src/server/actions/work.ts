@@ -34,6 +34,26 @@ export async function clearProjectHeroImage(projectId: string, currentSlug: stri
   revalidateProject(currentSlug);
 }
 
+type InlineProjectField = "title" | "tagline" | "summary";
+
+// A lighter partial update than autosaveProject — just one field, for
+// inline editing on the homepage's Featured Work spreads, without needing
+// (and risking clobbering) the full Tiptap contentJson/plainText body that
+// the real project editor also saves.
+export async function updateProjectField(
+  projectId: string,
+  currentSlug: string,
+  field: InlineProjectField,
+  value: string,
+) {
+  await requireOwner();
+  const trimmed = value.trim();
+  await workQueries.updateProject(projectId, {
+    [field]: field === "title" ? trimmed || "Untitled" : trimmed || null,
+  });
+  revalidateProject(currentSlug);
+}
+
 export async function createProject(isLab: boolean) {
   await requireOwner();
   const project = await workQueries.createProject(isLab);
