@@ -23,13 +23,21 @@ import { StickyNote, HeroLeaf, ScrollCue } from "@/components/home/hero-ornament
 import { FeaturedWork } from "@/components/home/featured-work";
 import { SiteFooter } from "@/components/home/site-footer";
 
+interface HomeProps {
+  searchParams: Promise<{ view?: string }>;
+}
+
 // PRD §1, §10 — same URL, two identities: an authenticated owner gets the
-// private Home dashboard; anyone else gets the public landing.
-export default async function Home() {
+// private Home dashboard; anyone else gets the public landing. ?view=public
+// lets the owner see (and jump off to edit) the exact page visitors see,
+// without signing out — see nav.tsx's "Public site" link.
+export default async function Home({ searchParams }: HomeProps) {
   const session = await auth();
   const isOwner = session?.user?.role === "OWNER";
+  const params = await searchParams;
+  const forcePublicView = params.view === "public";
 
-  if (isOwner) {
+  if (isOwner && !forcePublicView) {
     const owner = await requireOwner();
     const today = nowDate();
 
@@ -121,6 +129,20 @@ export default async function Home() {
 
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6 py-24">
+      {isOwner && (
+        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-full border border-border px-4 py-2 text-xs text-muted">
+          <span>This is what visitors see.</span>
+          <span className="flex gap-4">
+            <Link href="/settings" className="hover:text-ink">
+              Edit homepage text
+            </Link>
+            <Link href="/" className="hover:text-ink">
+              Back to dashboard
+            </Link>
+          </span>
+        </div>
+      )}
+
       <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-start sm:justify-between">
         <PublicIdentity />
         {stickyNote && (

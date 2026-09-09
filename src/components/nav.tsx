@@ -9,6 +9,7 @@ const ownerCoreLinks = [
   { href: "/", label: "Today" },
   { href: "/calendar", label: "Calendar" },
   { href: "/studio", label: "Studio" },
+  { href: "/?view=public", label: "Public site" },
 ];
 
 const visitorCoreLinks = [
