@@ -126,11 +126,14 @@ export async function updateProjectMeta(id: string, currentSlug: string, formDat
   const featured = formData.get("featured") === "1";
   const repositoryUrl = String(formData.get("repositoryUrl") ?? "").trim();
   const liveUrl = String(formData.get("liveUrl") ?? "").trim();
+  const sortOrderRaw = Number(formData.get("sortOrder"));
+  const sortOrder = Number.isFinite(sortOrderRaw) ? sortOrderRaw : 0;
 
   const update: Parameters<typeof workQueries.updateProject>[1] = {
     featured,
     repositoryUrl: repositoryUrl || null,
     liveUrl: liveUrl || null,
+    sortOrder,
     ...(status ? { status } : {}),
     ...(visibility ? { visibility } : {}),
   };

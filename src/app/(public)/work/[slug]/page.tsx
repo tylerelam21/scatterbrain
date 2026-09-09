@@ -68,6 +68,15 @@ export default async function ProjectPage({
             <span className="text-xs text-muted">Featured</span>
           </label>
           <label className="flex flex-col gap-1">
+            <span className="text-xs text-muted">Order</span>
+            <input
+              type="number"
+              name="sortOrder"
+              defaultValue={project.sortOrder}
+              className="w-16 border-b border-border bg-transparent py-1 text-sm text-ink focus:outline-none"
+            />
+          </label>
+          <label className="flex flex-col gap-1">
             <span className="text-xs text-muted">Repository URL</span>
             <input
               type="url"
