@@ -17,7 +17,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col items-center justify-center px-6 py-24 text-center">
+    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col items-center justify-center px-6 py-24 text-center">
       <h1 className="font-display text-3xl tracking-tight text-ink">Something went sideways.</h1>
       <p className="mt-3 max-w-sm text-muted">That page hit a snag. Give it another try, or head back home.</p>
       {error.digest && <p className="mt-2 text-xs text-muted">Reference: {error.digest}</p>}

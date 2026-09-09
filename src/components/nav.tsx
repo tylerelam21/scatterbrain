@@ -24,7 +24,7 @@ export function Nav({ session }: { session: Session | null }) {
 
   return (
     <header className="relative border-b border-border">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-6 px-6 py-5">
+      <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5">
         <div className="flex min-w-0 items-center gap-4">
           <Link href="/" className="flex shrink-0 items-center gap-3 text-sm tracking-tight text-ink">
             <DoorMark aria-hidden className="h-12 w-auto text-ink" />

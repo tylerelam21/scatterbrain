@@ -58,7 +58,7 @@ export default async function Home({ searchParams }: HomeProps) {
     const firstName = owner.name?.trim().split(/\s+/)[0] || "there";
 
     return (
-      <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-20">
+      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-20">
         <HomeHeroSection
           firstName={firstName}
           events={events}
@@ -123,7 +123,7 @@ export default async function Home({ searchParams }: HomeProps) {
   const stickyNote = content["home.stickyNote"] ?? "";
 
   return (
-    <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6 py-24">
+    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 py-24">
       {isOwner && (
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-full border border-border px-4 py-2 text-xs text-muted">
           <span>This is what visitors see.</span>
