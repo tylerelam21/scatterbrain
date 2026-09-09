@@ -18,9 +18,10 @@ const TAGLINES = [
 // unhurried." and shown one day in six.
 const SIGNATURE_LINE = "That there's some good in the world, and it's worth fighting for.";
 
-// A giant, low-opacity day-of-month behind the date label — the editorial
-// "big numeral" treatment the owner asked for, using the site's own accent
-// token rather than a bespoke color so it stays theme-aware in dark mode.
+// A giant day-of-month behind the date label — the editorial "big numeral"
+// treatment the owner asked for, in the same gold as the Quick Capture
+// sticky note (--date-gold, globals.css) paired against the green
+// --accent date label, rather than one flat hue for both.
 export function HomeHero({ firstName }: { firstName: string }) {
   const now = new Date();
   const dayName = new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(now).toUpperCase();
@@ -40,7 +41,7 @@ export function HomeHero({ firstName }: { firstName: string }) {
     <div className="relative">
       <span
         aria-hidden
-        className="pointer-events-none absolute -top-14 -left-6 -z-10 hidden font-display text-[13rem] leading-none font-bold tracking-tighter text-accent/10 select-none sm:block sm:text-[18rem]"
+        className="pointer-events-none absolute -top-14 -left-6 -z-10 hidden font-display text-[13rem] leading-none font-bold tracking-tighter text-date-gold/60 select-none sm:block sm:text-[18rem]"
       >
         {dayNumPadded}
       </span>

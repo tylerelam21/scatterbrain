@@ -27,6 +27,10 @@
   --dab-teal: #14698c;
   --dab-green: #365136;
   --dab-brown: #7a4a2e;
+  /* Home hero's big background date numeral — the same gold as the
+     Quick Capture sticky note, paired with --accent green for the date
+     label above it, rather than one flat hue for both. */
+  --date-gold: #f3dd8f;
 }
 
 @theme inline {
@@ -35,6 +39,7 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-accent: var(--accent);
+  --color-date-gold: var(--date-gold);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
   --font-display: var(--font-fraunces);
