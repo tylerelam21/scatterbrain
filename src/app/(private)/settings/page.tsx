@@ -6,6 +6,8 @@ import {
   setCalendarPreferences,
   setDefaultCalendar,
 } from "@/server/actions/calendar";
+import { setSiteContent } from "@/server/actions/site";
+import { SITE_CONTENT_KEYS } from "@/lib/site/content-keys";
 import { DisconnectCalendarForm } from "@/components/calendar/disconnect-calendar-form";
 
 interface SettingsPageProps {
@@ -22,10 +24,11 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
   const owner = await requireOwner();
   const params = await searchParams;
 
-  const [connections, calendars, settings] = await Promise.all([
+  const [connections, calendars, settings, siteContent] = await Promise.all([
     listCalendarConnections(owner.id),
     listCalendarsForUser(owner.id),
     getAppSettings(owner.id, ["defaultCalendarId", "showWeekends"]),
+    getAppSettings(owner.id, [...SITE_CONTENT_KEYS]),
   ]);
 
   return (
@@ -118,6 +121,84 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
           <button
             type="submit"
             className="mt-3 rounded-full border border-border px-4 py-1.5 text-xs text-muted hover:text-ink"
+          >
+            Save
+          </button>
+        </form>
+      </section>
+
+      <section className="mt-10">
+        <h2 className="text-sm font-medium text-ink">Homepage</h2>
+        <p className="mt-1 text-xs text-muted">
+          Text shown on the public homepage. Leave a field blank to hide that bit entirely rather
+          than show a placeholder.
+        </p>
+        <form action={setSiteContent} className="mt-4 space-y-4">
+          <label className="block">
+            <span className="text-xs text-muted">Sticky note quote</span>
+            <input
+              type="text"
+              name="home.stickyNote"
+              defaultValue={siteContent["home.stickyNote"] ?? ""}
+              placeholder="A short line, pinned next to your name"
+              className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs text-muted">About annotation</span>
+            <input
+              type="text"
+              name="home.aboutAnnotation"
+              defaultValue={siteContent["home.aboutAnnotation"] ?? ""}
+              placeholder="A small handwritten note next to the About spread"
+              className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs text-muted">Footer bio line</span>
+            <input
+              type="text"
+              name="home.footerBio"
+              defaultValue={siteContent["home.footerBio"] ?? ""}
+              placeholder="A sentence under 'Currently in Atlanta, Georgia.'"
+              className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+            />
+          </label>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <label className="block">
+              <span className="text-xs text-muted">Email</span>
+              <input
+                type="email"
+                name="home.email"
+                defaultValue={siteContent["home.email"] ?? ""}
+                placeholder="you@example.com"
+                className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs text-muted">LinkedIn URL</span>
+              <input
+                type="url"
+                name="home.linkedin"
+                defaultValue={siteContent["home.linkedin"] ?? ""}
+                placeholder="https://linkedin.com/in/…"
+                className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+              />
+            </label>
+            <label className="block">
+              <span className="text-xs text-muted">GitHub URL</span>
+              <input
+                type="url"
+                name="home.github"
+                defaultValue={siteContent["home.github"] ?? ""}
+                placeholder="https://github.com/…"
+                className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+              />
+            </label>
+          </div>
+          <button
+            type="submit"
+            className="rounded-full border border-border px-4 py-1.5 text-xs text-muted hover:text-ink"
           >
             Save
           </button>

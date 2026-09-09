@@ -85,6 +85,7 @@ export async function updateProject(
     featured: boolean;
     repositoryUrl: string | null;
     liveUrl: string | null;
+    heroImageId: string | null;
     sortOrder: number;
     publishedAt: Date;
   }>,

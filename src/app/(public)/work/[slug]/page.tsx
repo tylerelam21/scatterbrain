@@ -8,6 +8,7 @@ import { PROJECT_STATUSES, type ProjectContent } from "@/lib/work/constants";
 import { VISIBILITY_OPTIONS } from "@/lib/content/visibility";
 import { addProjectTechnology, removeProjectTechnology, updateProjectMeta } from "@/server/actions/work";
 import { ProjectEditor } from "@/components/work/project-editor";
+import { ProjectHeroUploader } from "@/components/work/project-hero-uploader";
 import { SlugForm } from "@/components/work/slug-form";
 import { DeleteProjectForm } from "@/components/work/delete-project-form";
 
@@ -91,6 +92,14 @@ export default async function ProjectPage({
             Update
           </button>
         </form>
+
+        <div className="mt-6">
+          <ProjectHeroUploader
+            projectId={project.id}
+            slug={project.slug}
+            currentHeroImageId={project.heroImageId}
+          />
+        </div>
 
         <div className="mt-10">
           <ProjectEditor

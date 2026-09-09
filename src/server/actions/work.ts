@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/lib/auth/require-owner";
 import * as workQueries from "@/lib/db/queries/work";
+import * as photoQueries from "@/lib/db/queries/photos";
 import { PROJECT_STATUSES, type ProjectContent, type ProjectStatus } from "@/lib/work/constants";
 import { VISIBILITY_OPTIONS, type Visibility } from "@/lib/content/visibility";
 import { slugify } from "@/lib/work/slug";
@@ -12,7 +13,25 @@ function revalidateProject(slug?: string) {
   revalidatePath("/work");
   revalidatePath("/lab");
   revalidatePath("/studio");
+  revalidatePath("/");
   if (slug) revalidatePath(`/work/${slug}`);
+}
+
+// A project's hero image is shown on the public homepage's Featured Work
+// spreads and the project page itself, so it needs to actually be
+// viewable by visitors — force it public rather than leaving it at the
+// upload default (PRIVATE), which would 404 for anyone but the owner.
+export async function setProjectHeroImage(projectId: string, currentSlug: string, photoId: string) {
+  await requireOwner();
+  await photoQueries.updatePhoto(photoId, { visibility: "PUBLIC" });
+  await workQueries.updateProject(projectId, { heroImageId: photoId });
+  revalidateProject(currentSlug);
+}
+
+export async function clearProjectHeroImage(projectId: string, currentSlug: string) {
+  await requireOwner();
+  await workQueries.updateProject(projectId, { heroImageId: null });
+  revalidateProject(currentSlug);
 }
 
 export async function createProject(isLab: boolean) {

@@ -5,9 +5,13 @@ import { addDays, nowDate, startOfDay } from "@/lib/calendar/dates";
 import { listEventsInRange } from "@/lib/db/queries/calendar";
 import { getResurfacedThoughtCandidate, markBrainItemResurfaced } from "@/lib/db/queries/brain";
 import { getTopTags } from "@/lib/db/queries/tags";
+import { getOwnerUser } from "@/lib/db/queries/users";
+import { getAppSettings } from "@/lib/db/queries/settings";
+import { listProjects } from "@/lib/db/queries/work";
 import { getCurrentWeather } from "@/lib/home/weather";
 import { HOME_CITY } from "@/lib/home/location";
 import { getPuzzleForCurrentHour } from "@/lib/db/queries/chess";
+import { SITE_CONTENT_KEYS } from "@/lib/site/content-keys";
 import { QuickCapture } from "@/components/brain/quick-capture";
 import { HomeHero } from "@/components/home/home-hero";
 import { TodaySchedule } from "@/components/home/today-schedule";
@@ -15,7 +19,9 @@ import { WeatherMoment } from "@/components/home/weather-moment";
 import { BestMove } from "@/components/chess/best-move";
 import { BrainMap } from "@/components/home/brain-map";
 import { PublicIdentity } from "@/components/home/public-identity";
-import { WorldObjects } from "@/components/home/world-objects";
+import { StickyNote, HeroLeaf, ScrollCue } from "@/components/home/hero-ornaments";
+import { FeaturedWork } from "@/components/home/featured-work";
+import { SiteFooter } from "@/components/home/site-footer";
 
 // PRD §1, §10 — same URL, two identities: an authenticated owner gets the
 // private Home dashboard; anyone else gets the public landing.
@@ -104,12 +110,40 @@ export default async function Home() {
     );
   }
 
+  const owner = await getOwnerUser();
+  const [content, featuredProjects] = await Promise.all([
+    owner
+      ? getAppSettings(owner.id, [...SITE_CONTENT_KEYS])
+      : Promise.resolve({} as Record<string, string>),
+    listProjects({ isLab: false, publicOnly: true }),
+  ]);
+  const stickyNote = content["home.stickyNote"] ?? "";
+
   return (
     <main className="mx-auto flex w-full max-w-5xl flex-1 flex-col px-6 py-24">
-      <PublicIdentity />
-      <section className="mt-20">
-        <WorldObjects />
-      </section>
+      <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-start sm:justify-between">
+        <PublicIdentity />
+        {stickyNote && (
+          <div className="flex items-start gap-6">
+            <StickyNote text={stickyNote} />
+            <HeroLeaf />
+          </div>
+        )}
+      </div>
+
+      <ScrollCue />
+
+      <FeaturedWork
+        projects={featuredProjects.filter((p) => p.featured)}
+        aboutAnnotation={content["home.aboutAnnotation"] ?? ""}
+      />
+
+      <SiteFooter
+        bio={content["home.footerBio"] ?? ""}
+        email={content["home.email"] ?? ""}
+        linkedin={content["home.linkedin"] ?? ""}
+        github={content["home.github"] ?? ""}
+      />
     </main>
   );
 }

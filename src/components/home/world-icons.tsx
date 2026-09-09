@@ -21,6 +21,25 @@ export function PaintbrushIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function LeafIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 100 140" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <path
+        d="M55 135 C 50 100, 60 60, 65 15"
+        stroke="currentColor"
+        strokeWidth="4"
+        strokeLinecap="round"
+        fill="none"
+      />
+      <g fill="currentColor">
+        <path d="M58 100 C 40 95, 30 75, 40 60 C 55 65, 62 85, 58 100 Z" />
+        <path d="M60 70 C 78 65, 88 45, 78 30 C 63 35, 56 55, 60 70 Z" />
+        <path d="M64 35 C 78 25, 82 8, 72 0 C 60 8, 58 25, 64 35 Z" />
+      </g>
+    </svg>
+  );
+}
+
 export function NotebookIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <svg viewBox="-10 -10 120 140" xmlns="http://www.w3.org/2000/svg" {...props}>
