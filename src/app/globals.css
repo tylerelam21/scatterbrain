@@ -21,6 +21,12 @@
      reads fine against light paper, but disappears entirely against
      dark paper (see the dark override below). */
   --note-shadow: 3px 6px 14px rgba(23, 20, 15, 0.18);
+  /* Paint-dab hero accent (PaintDabsIcon) — Terminus's teal, the site
+     accent's original green, and a warm brown, dark enough to read
+     against light paper. */
+  --dab-teal: #14698c;
+  --dab-green: #365136;
+  --dab-brown: #7a4a2e;
 }
 
 @theme inline {
@@ -54,6 +60,11 @@
      floating with no definition. */
   --note-shadow:
     0 6px 28px rgba(243, 221, 143, 0.14), 2px 6px 14px rgba(0, 0, 0, 0.55);
+  /* Lightened so the dabs still read as distinct color against near-black
+     paper — the light-mode values are too dark to see there. */
+  --dab-teal: #3ec5f5;
+  --dab-green: #6a9e6a;
+  --dab-brown: #c48a5f;
 }
 
 @media (prefers-reduced-motion: reduce) {

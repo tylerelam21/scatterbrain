@@ -1,4 +1,4 @@
-import { LeafIcon } from "./world-icons";
+import { PaintDabsIcon } from "./world-icons";
 
 // A small pinned note next to the hero — the one place on the outward
 // homepage the owner's own words show up unprompted, rather than
@@ -20,8 +20,8 @@ export function StickyNote({ text }: { text: string }) {
   );
 }
 
-export function HeroLeaf() {
-  return <LeafIcon aria-hidden className="h-28 w-auto shrink-0 text-accent/70" />;
+export function HeroAccent() {
+  return <PaintDabsIcon aria-hidden className="h-24 w-auto shrink-0" />;
 }
 
 export function ScrollCue() {

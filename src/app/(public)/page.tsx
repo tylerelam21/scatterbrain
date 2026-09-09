@@ -19,7 +19,7 @@ import { WeatherMoment } from "@/components/home/weather-moment";
 import { BestMove } from "@/components/chess/best-move";
 import { BrainMap } from "@/components/home/brain-map";
 import { PublicIdentity } from "@/components/home/public-identity";
-import { StickyNote, HeroLeaf, ScrollCue } from "@/components/home/hero-ornaments";
+import { StickyNote, HeroAccent, ScrollCue } from "@/components/home/hero-ornaments";
 import { FeaturedWork } from "@/components/home/featured-work";
 import { SiteFooter } from "@/components/home/site-footer";
 
@@ -148,7 +148,7 @@ export default async function Home({ searchParams }: HomeProps) {
         {stickyNote && (
           <div className="flex items-start gap-6">
             <StickyNote text={stickyNote} />
-            <HeroLeaf />
+            <HeroAccent />
           </div>
         )}
       </div>

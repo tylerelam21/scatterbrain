@@ -24,13 +24,13 @@ interface SpreadProps {
 function Spread({ number, heading, tagline, body, href, linkLabel, imageSide, image, annotation }: SpreadProps) {
   const textBlock = (
     <div className="min-w-0">
-      <span className="text-xs text-muted">{number}</span>
-      <h3 className="font-display mt-1 text-3xl tracking-tight text-ink">{heading}</h3>
-      {tagline && <p className="mt-2 text-lg text-muted">{tagline}</p>}
-      {body && <p className="mt-4 text-sm leading-relaxed text-muted">{body}</p>}
+      <span className="text-xs tracking-widest text-muted">{number}</span>
+      <h3 className="font-display mt-2 text-4xl tracking-tight text-ink md:text-5xl">{heading}</h3>
+      {tagline && <p className="mt-3 text-xl text-muted">{tagline}</p>}
+      {body && <p className="mt-5 max-w-md text-sm leading-relaxed text-muted">{body}</p>}
       <Link
         href={href}
-        className="mt-4 inline-block text-sm text-ink underline decoration-1 underline-offset-4 hover:text-accent"
+        className="mt-6 inline-block text-sm text-ink underline decoration-1 underline-offset-4 hover:text-accent"
       >
         {linkLabel} →
       </Link>
@@ -38,9 +38,9 @@ function Spread({ number, heading, tagline, body, href, linkLabel, imageSide, im
   );
 
   return (
-    <div className="relative grid grid-cols-1 items-center gap-8 py-14 md:grid-cols-2">
+    <div className="relative grid grid-cols-1 items-center gap-10 py-16 md:grid-cols-2 md:gap-14 md:py-24">
       {annotation && (
-        <p className="font-hand absolute -top-6 right-0 hidden max-w-[10rem] -rotate-2 text-right text-base text-accent/80 md:block">
+        <p className="font-hand absolute -top-8 right-0 hidden max-w-[11rem] -rotate-2 text-right text-lg text-accent/80 md:block">
           {annotation}
         </p>
       )}
@@ -80,8 +80,9 @@ export function FeaturedWork({
   return (
     <section className="mt-24">
       {projects.length > 0 && (
-        <div className="border-b border-border pb-2">
+        <div className="flex items-baseline justify-between border-b border-border pb-2">
           <span className="text-xs tracking-widest text-muted uppercase">Featured work</span>
+          <span className="text-xs text-muted">{String(items.length).padStart(2, "0")} total</span>
         </div>
       )}
 
@@ -107,7 +108,7 @@ export function FeaturedWork({
                   <img
                     src="/about/map.webp"
                     alt="A hand-drawn map tracing the route from Alpharetta through Athens to Atlanta"
-                    className="block h-auto w-full rounded-sm select-none"
+                    className="block h-auto w-full rounded-lg select-none"
                     style={{ boxShadow: "var(--note-shadow)" }}
                     draggable={false}
                   />
@@ -133,11 +134,11 @@ export function FeaturedWork({
                   <img
                     src={`/api/photos/${project.heroImageId}`}
                     alt=""
-                    className="block h-full min-h-[280px] w-full rounded-sm object-cover"
+                    className="block h-full min-h-[360px] w-full rounded-lg object-cover md:min-h-[420px]"
                     style={{ boxShadow: "var(--note-shadow)" }}
                   />
                 ) : (
-                  <div className="h-full min-h-[280px] rounded-sm border border-border" />
+                  <div className="h-full min-h-[360px] rounded-lg border border-border md:min-h-[420px]" />
                 )
               }
             />

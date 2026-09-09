@@ -21,21 +21,29 @@ export function PaintbrushIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-export function LeafIcon(props: SVGProps<SVGSVGElement>) {
+// A small cluster of paint dabs — the hero's corner accent. Personal
+// rather than generic: Terminus's teal, the site's own green, and a warm
+// brown, the same "old paint chips" vocabulary as the rest of the site,
+// standing in for an actual painter's palette rather than stock botanical
+// decoration. Colors come from theme-aware CSS vars (globals.css), not
+// currentColor, since it's genuinely three distinct hues at once.
+export function PaintDabsIcon(props: SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 100 140" fill="none" xmlns="http://www.w3.org/2000/svg" {...props}>
+    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" {...props}>
       <path
-        d="M55 135 C 50 100, 60 60, 65 15"
-        stroke="currentColor"
-        strokeWidth="4"
-        strokeLinecap="round"
-        fill="none"
+        d="M35 70 C 20 65, 15 45, 30 35 C 48 28, 62 40, 58 58 C 55 72, 45 75, 35 70 Z"
+        fill="var(--dab-teal)"
       />
-      <g fill="currentColor">
-        <path d="M58 100 C 40 95, 30 75, 40 60 C 55 65, 62 85, 58 100 Z" />
-        <path d="M60 70 C 78 65, 88 45, 78 30 C 63 35, 56 55, 60 70 Z" />
-        <path d="M64 35 C 78 25, 82 8, 72 0 C 60 8, 58 25, 64 35 Z" />
-      </g>
+      <path
+        d="M68 45 C 58 38, 58 20, 75 15 C 92 12, 100 28, 90 42 C 82 52, 74 50, 68 45 Z"
+        fill="var(--dab-green)"
+      />
+      <path
+        d="M52 92 C 44 88, 44 74, 58 70 C 70 68, 76 80, 68 90 C 62 96, 56 96, 52 92 Z"
+        fill="var(--dab-brown)"
+      />
+      <circle cx="30" cy="98" r="4" fill="var(--dab-teal)" />
+      <circle cx="94" cy="70" r="3" fill="var(--dab-green)" />
     </svg>
   );
 }
