@@ -107,8 +107,10 @@ export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }:
           {/* Horizontal schedule band: UP NEXT | event | event | Full
               calendar, thin vertical dividers, no timeline dots. */}
           <div className="mt-10 flex min-h-[80px] items-stretch divide-x divide-border border-t border-border pt-8 font-sans">
-            <div className="flex items-center pr-8">
-              <span className="text-xs font-medium tracking-widest text-muted uppercase">Up next</span>
+            <div className="flex shrink-0 items-center pr-8">
+              <span className="text-xs font-medium tracking-widest whitespace-nowrap text-muted uppercase">
+                Up next
+              </span>
             </div>
 
             {upcoming.length === 0 ? (
