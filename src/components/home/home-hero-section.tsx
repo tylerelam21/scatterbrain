@@ -65,14 +65,7 @@ export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }:
   const [captureState, captureAction, capturePending] = useActionState(captureBrainItem, initialCaptureState);
 
   return (
-    <div className="relative overflow-hidden">
-      <span
-        aria-hidden
-        className="pointer-events-none absolute -top-8 -left-6 -z-10 hidden font-display text-[19rem] leading-[0.8] font-black tracking-tighter text-date-gold select-none sm:block"
-      >
-        {dayNumPadded}
-      </span>
-
+    <div className="relative">
       <div className="absolute top-0 right-0">
         <WeatherMoment city={city} tempF={tempF} weatherCode={weatherCode} />
       </div>
@@ -80,9 +73,23 @@ export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }:
       {/* Left column is reserved for the date label sitting over the
           numeral — everything else (greeting, up next, capture) lives in
           the right column, indented past the numeral rather than
-          spanning full width underneath it, matching the mockup. */}
+          spanning full width underneath it, matching the mockup. The
+          numeral itself is width- and height-clamped with
+          overflow-hidden to this column specifically, so no matter how
+          wide the glyphs render it's physically impossible for it to
+          bleed rightward into the greeting's column — that clean
+          separation is what actually reads as "sharp" rather than the
+          numeral crowding into unrelated text. */}
       <div className="grid grid-cols-1 gap-x-12 sm:grid-cols-[220px_1fr]">
         <div className="relative pt-1">
+          <span
+            aria-hidden
+            className="pointer-events-none absolute -top-8 -left-6 -z-10 hidden h-full w-[210px] overflow-hidden font-display text-[13rem] leading-[0.8] font-black tracking-tighter text-date-gold select-none sm:block"
+          >
+            <span className="block">{dayNumPadded[0]}</span>
+            <span className="block">{dayNumPadded[1]}</span>
+          </span>
+
           <p className="text-xs font-medium tracking-[0.2em] text-muted">{dayName}</p>
           <p className="font-display mt-1 text-2xl font-bold text-accent">
             {monthShort} {dayNum}
