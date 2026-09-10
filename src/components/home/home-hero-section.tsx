@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { formatTime, isSameAllDayDate, isSameDay } from "@/lib/calendar/dates";
-import { eventColor } from "@/lib/calendar/colors";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 import { captureBrainItem, type CaptureState } from "@/server/actions/brain";
 import { WeatherMoment } from "./weather-moment";
@@ -31,16 +30,26 @@ interface HomeHeroSectionProps {
   weatherCode: number | null;
 }
 
-// The private dashboard's whole top section — date/greeting, a giant
-// background day-of-month bleeding behind it AND the schedule preview
-// below, one consolidated "Up next" list (rather than a separate Today
-// section plus a second Up-next list), and a plain one-line capture
-// input — built to match the owner's own mockup for this page. Bundled
-// into a single component (rather than composed from siblings in
-// page.tsx) because the numeral needs one shared positioning/overflow
-// context with everything it bleeds behind; splitting it back across
-// HomeHero/WeatherMoment/TodaySchedule/QuickCapture the way it used to
-// be would clip the numeral at whichever component's box it lived in.
+// The private dashboard's whole top section. Structural notes from the
+// second-pass revision:
+//
+// - The outer wrapper needs an explicit z-index (z-0), not just
+//   `relative` — without one, `relative` alone doesn't establish a
+//   stacking context, so the numeral's negative z-index escapes all the
+//   way to the document root and paints *underneath* <body>'s own
+//   background, i.e. invisible, despite existing with the right size
+//   and color. Verified with a standalone Playwright repro before
+//   porting this back (this bug is easy to trip and easy to miss since
+//   the element "exists" in the DOM the whole time).
+// - The numeral is one text node (not two independently-positioned
+//   digits) inside a width-constrained, overflow-hidden box; at this
+//   font size the digits wrap onto their own line naturally (no
+//   manual <br/> or split spans), which is what gives it enough
+//   height to bleed past both the top and bottom of the section while
+//   still reading as one connected shape.
+// - Schedule is a single horizontal band (UP NEXT | event | event |
+//   Full calendar), not a vertical timeline — at most two events, no
+//   dots, no connecting line.
 export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }: HomeHeroSectionProps) {
   const now = new Date();
   const dayName = new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(now).toUpperCase();
@@ -59,94 +68,72 @@ export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }:
   const upcoming = events
     .filter((e) => (e.allDay ? isSameAllDayDate(e.start, now) || e.start > now : e.end > now))
     .sort((a, b) => a.start.getTime() - b.start.getTime())
-    .slice(0, 4);
+    .slice(0, 2);
   const gapMessage = computeGapMessage(todayTimed, now);
 
   const [captureState, captureAction, capturePending] = useActionState(captureBrainItem, initialCaptureState);
 
   return (
-    <div className="relative">
+    <div className="relative z-0">
       <div className="absolute top-0 right-0">
         <WeatherMoment city={city} tempF={tempF} weatherCode={weatherCode} />
       </div>
 
       {/* Left column is reserved for the date label sitting over the
           numeral — everything else (greeting, up next, capture) lives in
-          the right column, indented past the numeral rather than
-          spanning full width underneath it, matching the mockup. The
-          numeral itself is width- and height-clamped with
-          overflow-hidden to this column specifically, so no matter how
-          wide the glyphs render it's physically impossible for it to
-          bleed rightward into the greeting's column — that clean
-          separation is what actually reads as "sharp" rather than the
-          numeral crowding into unrelated text. */}
-      <div className="grid grid-cols-1 gap-x-12 sm:grid-cols-[220px_1fr]">
+          the right column, indented past the numeral. */}
+      <div className="grid grid-cols-1 gap-x-12 sm:grid-cols-[340px_1fr]">
         <div className="relative pt-1">
           <span
             aria-hidden
-            className="pointer-events-none absolute -top-8 -left-6 -z-10 hidden h-full w-[210px] overflow-hidden font-display text-[13rem] leading-[0.8] font-black tracking-tighter text-date-gold select-none sm:block"
+            className="pointer-events-none absolute -top-[230px] -left-[30px] -z-10 hidden h-full w-[320px] overflow-hidden font-display text-[29rem] leading-[0.76] font-black tracking-tighter break-all text-date-gold select-none sm:block"
           >
-            <span className="block">{dayNumPadded[0]}</span>
-            <span className="block">{dayNumPadded[1]}</span>
+            {dayNumPadded}
           </span>
 
-          <p className="text-xs font-medium tracking-[0.2em] text-muted">{dayName}</p>
-          <p className="font-display mt-1 text-2xl font-bold text-accent">
+          <p className="relative font-sans text-xs font-medium tracking-[0.2em] text-muted">{dayName}</p>
+          <p className="relative font-display mt-1 text-2xl font-bold text-accent">
             {monthShort} {dayNum}
           </p>
-          <p className="text-sm text-muted">{year}</p>
+          <p className="relative font-sans text-sm text-muted">{year}</p>
         </div>
 
         <div className="relative min-w-0">
-          <h1 className="font-display text-5xl leading-tight tracking-tight text-ink sm:text-6xl">
+          <h1 className="font-display text-[43px] leading-tight tracking-tight whitespace-nowrap text-ink sm:text-[54px]">
             {timeGreeting}, {firstName}.
           </h1>
           <p className="font-hand mt-2 text-xl text-muted">{tagline}</p>
 
-          <div className="mt-10 border-t border-border pt-8">
-            <div className="flex items-baseline justify-between">
-              <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Up next</h2>
-              <Link href="/calendar" className="text-xs text-muted hover:text-ink">
-                Full calendar →
-              </Link>
+          {/* Horizontal schedule band: UP NEXT | event | event | Full
+              calendar, thin vertical dividers, no timeline dots. */}
+          <div className="mt-10 flex min-h-[80px] items-stretch divide-x divide-border border-t border-border pt-8 font-sans">
+            <div className="flex items-center pr-8">
+              <span className="text-xs font-medium tracking-widest text-muted uppercase">Up next</span>
             </div>
 
             {upcoming.length === 0 ? (
-              <p className="mt-5 text-sm text-muted italic">{gapMessage ?? "Nothing on the calendar."}</p>
+              <div className="flex items-center px-8">
+                <p className="text-sm text-muted italic">{gapMessage ?? "Nothing on the calendar."}</p>
+              </div>
             ) : (
-              <ul className="mt-6 space-y-7">
-                {upcoming.map((event, index) => {
-                  const isLast = index === upcoming.length - 1;
-                  return (
-                    <li key={event.id} className="relative pl-8">
-                      {!isLast && (
-                        <span
-                          aria-hidden
-                          className="absolute top-3 left-[3px] w-0.5 bg-muted/25"
-                          style={{ height: "calc(100% + 1.75rem)" }}
-                        />
-                      )}
-                      <span
-                        className="absolute top-1 left-0 h-2 w-2 rounded-full border-2 border-paper"
-                        style={{ backgroundColor: eventColor(event) }}
-                      />
-                      <span className="font-hand block text-sm text-accent">
-                        {event.allDay ? "all day" : formatTime(event.start)}
-                      </span>
-                      <span className="text-ink">{event.title}</span>
-                      {event.location && <span className="ml-2 text-sm text-muted">{event.location}</span>}
-                    </li>
-                  );
-                })}
-              </ul>
+              upcoming.map((event) => (
+                <div key={event.id} className="flex min-w-0 flex-col justify-center px-8">
+                  <span className="text-xs font-semibold text-accent">
+                    {event.allDay ? "All day" : formatTime(event.start)}
+                  </span>
+                  <span className="font-display mt-1 truncate text-base text-ink">{event.title}</span>
+                </div>
+              ))
             )}
 
-            {gapMessage && upcoming.length > 0 && (
-              <p className="mt-5 text-sm text-muted italic">{gapMessage}</p>
-            )}
+            <div className="ml-auto flex items-center pl-8">
+              <Link href="/calendar" className="text-xs whitespace-nowrap text-accent hover:text-ink">
+                Full calendar →
+              </Link>
+            </div>
           </div>
 
-          <div className="mt-10 border-t border-border pt-8">
+          <div className="mt-8 border-t border-border pt-6">
             <form action={captureAction} className="relative">
               <input
                 name="content"
@@ -154,7 +141,7 @@ export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }:
                 placeholder="What's on your mind?"
                 required
                 autoComplete="off"
-                className="font-hand w-full border-b border-border bg-transparent py-2 pr-8 text-xl text-ink placeholder:text-muted focus:border-ink focus:outline-none"
+                className="font-sans placeholder:font-hand w-full border-b border-border bg-transparent py-2 pr-8 text-lg text-ink placeholder:text-lg placeholder:text-muted focus:border-ink focus:outline-none"
               />
               <button
                 type="submit"
@@ -163,7 +150,7 @@ export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }:
               >
                 ↵
               </button>
-              <p aria-live="polite" className="mt-1 h-4 text-xs text-muted">
+              <p aria-live="polite" className="mt-1 h-4 font-sans text-xs text-muted">
                 {capturePending && "saving…"}
                 {!capturePending && captureState.ok && captureState.savedAt > 0 && (
                   <span key={captureState.savedAt} className="qc-saved-message">
