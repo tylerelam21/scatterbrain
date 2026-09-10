@@ -86,9 +86,10 @@ export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }:
         <div className="relative pt-1">
           <span
             aria-hidden
-            className="pointer-events-none absolute -top-[230px] -left-[30px] -z-10 hidden h-full w-[320px] overflow-hidden font-display text-[29rem] leading-[0.76] font-black tracking-tighter break-all text-date-gold select-none sm:block"
+            className="pointer-events-none absolute -top-[230px] -left-[30px] -z-10 hidden h-full w-[320px] overflow-hidden font-display text-[29rem] leading-[0.76] font-black tracking-tighter text-date-gold select-none sm:block"
           >
-            {dayNumPadded}
+            <span className="block">{dayNumPadded[0]}</span>
+            <span className="block">{dayNumPadded[1]}</span>
           </span>
 
           <p className="relative font-sans text-xs font-medium tracking-[0.2em] text-muted">{dayName}</p>
