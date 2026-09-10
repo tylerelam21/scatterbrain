@@ -68,7 +68,7 @@ export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }:
     <div className="relative overflow-hidden">
       <span
         aria-hidden
-        className="pointer-events-none absolute -top-8 -left-6 -z-10 hidden font-display text-[19rem] leading-[0.8] font-bold tracking-tighter text-date-gold/60 select-none sm:block"
+        className="pointer-events-none absolute -top-8 -left-6 -z-10 hidden font-display text-[19rem] leading-[0.8] font-black tracking-tighter text-date-gold select-none sm:block"
       >
         {dayNumPadded}
       </span>
