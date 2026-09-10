@@ -73,96 +73,100 @@ export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }:
         {dayNumPadded}
       </span>
 
-      <div className="relative flex items-start justify-between gap-8">
-        <div className="flex flex-wrap items-start gap-x-10 gap-y-6">
-          <div className="shrink-0">
-            <p className="text-xs font-medium tracking-[0.2em] text-muted">{dayName}</p>
-            <p className="font-display mt-1 text-2xl font-bold text-accent">
-              {monthShort} {dayNum}
-            </p>
-            <p className="text-sm text-muted">{year}</p>
-          </div>
-
-          <div className="min-w-0">
-            <h1 className="font-display text-5xl leading-tight tracking-tight text-ink sm:text-6xl">
-              {timeGreeting}, {firstName}.
-            </h1>
-            <p className="font-hand mt-2 text-xl text-muted">{tagline}</p>
-          </div>
-        </div>
-
+      <div className="absolute top-0 right-0">
         <WeatherMoment city={city} tempF={tempF} weatherCode={weatherCode} />
       </div>
 
-      <div className="relative mt-10 border-t border-border pt-8">
-        <div className="flex items-baseline justify-between">
-          <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Up next</h2>
-          <Link href="/calendar" className="text-xs text-muted hover:text-ink">
-            Full calendar →
-          </Link>
+      {/* Left column is reserved for the date label sitting over the
+          numeral — everything else (greeting, up next, capture) lives in
+          the right column, indented past the numeral rather than
+          spanning full width underneath it, matching the mockup. */}
+      <div className="grid grid-cols-1 gap-x-12 sm:grid-cols-[220px_1fr]">
+        <div className="relative pt-1">
+          <p className="text-xs font-medium tracking-[0.2em] text-muted">{dayName}</p>
+          <p className="font-display mt-1 text-2xl font-bold text-accent">
+            {monthShort} {dayNum}
+          </p>
+          <p className="text-sm text-muted">{year}</p>
         </div>
 
-        {upcoming.length === 0 ? (
-          <p className="mt-5 text-sm text-muted italic">{gapMessage ?? "Nothing on the calendar."}</p>
-        ) : (
-          <ul className="mt-6 space-y-7">
-            {upcoming.map((event, index) => {
-              const isLast = index === upcoming.length - 1;
-              return (
-                <li key={event.id} className="relative pl-8">
-                  {!isLast && (
-                    <span
-                      aria-hidden
-                      className="absolute top-3 left-[3px] w-0.5 bg-muted/25"
-                      style={{ height: "calc(100% + 1.75rem)" }}
-                    />
-                  )}
-                  <span
-                    className="absolute top-1 left-0 h-2 w-2 rounded-full border-2 border-paper"
-                    style={{ backgroundColor: eventColor(event) }}
-                  />
-                  <span className="font-hand block text-sm text-accent">
-                    {event.allDay ? "all day" : formatTime(event.start)}
-                  </span>
-                  <span className="text-ink">{event.title}</span>
-                  {event.location && <span className="ml-2 text-sm text-muted">{event.location}</span>}
-                </li>
-              );
-            })}
-          </ul>
-        )}
+        <div className="relative min-w-0">
+          <h1 className="font-display text-5xl leading-tight tracking-tight text-ink sm:text-6xl">
+            {timeGreeting}, {firstName}.
+          </h1>
+          <p className="font-hand mt-2 text-xl text-muted">{tagline}</p>
 
-        {gapMessage && upcoming.length > 0 && (
-          <p className="mt-5 text-sm text-muted italic">{gapMessage}</p>
-        )}
-      </div>
+          <div className="mt-10 border-t border-border pt-8">
+            <div className="flex items-baseline justify-between">
+              <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Up next</h2>
+              <Link href="/calendar" className="text-xs text-muted hover:text-ink">
+                Full calendar →
+              </Link>
+            </div>
 
-      <div className="relative mt-10 border-t border-border pt-8">
-        <form action={captureAction} className="relative">
-          <input
-            name="content"
-            type="text"
-            placeholder="What's on your mind?"
-            required
-            autoComplete="off"
-            className="font-hand w-full border-b border-border bg-transparent py-2 pr-8 text-xl text-ink placeholder:text-muted focus:border-ink focus:outline-none"
-          />
-          <button
-            type="submit"
-            aria-label="Save"
-            className="absolute right-0 bottom-2 text-muted hover:text-ink"
-          >
-            ↵
-          </button>
-          <p aria-live="polite" className="mt-1 h-4 text-xs text-muted">
-            {capturePending && "saving…"}
-            {!capturePending && captureState.ok && captureState.savedAt > 0 && (
-              <span key={captureState.savedAt} className="qc-saved-message">
-                saved.
-              </span>
+            {upcoming.length === 0 ? (
+              <p className="mt-5 text-sm text-muted italic">{gapMessage ?? "Nothing on the calendar."}</p>
+            ) : (
+              <ul className="mt-6 space-y-7">
+                {upcoming.map((event, index) => {
+                  const isLast = index === upcoming.length - 1;
+                  return (
+                    <li key={event.id} className="relative pl-8">
+                      {!isLast && (
+                        <span
+                          aria-hidden
+                          className="absolute top-3 left-[3px] w-0.5 bg-muted/25"
+                          style={{ height: "calc(100% + 1.75rem)" }}
+                        />
+                      )}
+                      <span
+                        className="absolute top-1 left-0 h-2 w-2 rounded-full border-2 border-paper"
+                        style={{ backgroundColor: eventColor(event) }}
+                      />
+                      <span className="font-hand block text-sm text-accent">
+                        {event.allDay ? "all day" : formatTime(event.start)}
+                      </span>
+                      <span className="text-ink">{event.title}</span>
+                      {event.location && <span className="ml-2 text-sm text-muted">{event.location}</span>}
+                    </li>
+                  );
+                })}
+              </ul>
             )}
-          </p>
-        </form>
+
+            {gapMessage && upcoming.length > 0 && (
+              <p className="mt-5 text-sm text-muted italic">{gapMessage}</p>
+            )}
+          </div>
+
+          <div className="mt-10 border-t border-border pt-8">
+            <form action={captureAction} className="relative">
+              <input
+                name="content"
+                type="text"
+                placeholder="What's on your mind?"
+                required
+                autoComplete="off"
+                className="font-hand w-full border-b border-border bg-transparent py-2 pr-8 text-xl text-ink placeholder:text-muted focus:border-ink focus:outline-none"
+              />
+              <button
+                type="submit"
+                aria-label="Save"
+                className="absolute right-0 bottom-2 text-muted hover:text-ink"
+              >
+                ↵
+              </button>
+              <p aria-live="polite" className="mt-1 h-4 text-xs text-muted">
+                {capturePending && "saving…"}
+                {!capturePending && captureState.ok && captureState.savedAt > 0 && (
+                  <span key={captureState.savedAt} className="qc-saved-message">
+                    saved.
+                  </span>
+                )}
+              </p>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
