@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { formatTime, isSameAllDayDate, isSameDay } from "@/lib/calendar/dates";
+import { eventColor } from "@/lib/calendar/colors";
 import type { CalendarEventRow } from "@/lib/calendar/types";
 import { captureBrainItem, type CaptureState } from "@/server/actions/brain";
 import { WeatherMoment } from "./weather-moment";
@@ -47,9 +48,10 @@ interface HomeHeroSectionProps {
 //   manual <br/> or split spans), which is what gives it enough
 //   height to bleed past both the top and bottom of the section while
 //   still reading as one connected shape.
-// - Schedule is a single horizontal band (UP NEXT | event | event |
-//   Full calendar), not a vertical timeline — at most two events, no
-//   dots, no connecting line.
+// - Schedule is a dot-and-connecting-line "Up next" list (time inline
+//   with title, per event), capped to 2 events, with "Full calendar"
+//   below it — reverted from an earlier horizontal-band attempt back
+//   to this at the owner's request.
 export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }: HomeHeroSectionProps) {
   const now = new Date();
   const dayName = new Intl.DateTimeFormat(undefined, { weekday: "long" }).format(now).toUpperCase();
@@ -105,32 +107,47 @@ export function HomeHeroSection({ firstName, events, city, tempF, weatherCode }:
           </h1>
           <p className="font-hand mt-2 text-xl text-muted">{tagline}</p>
 
-          {/* Horizontal schedule band: UP NEXT | event | event | Full
-              calendar, thin vertical dividers, no timeline dots. */}
-          <div className="mt-10 flex min-h-[80px] items-stretch divide-x divide-border border-t border-border pt-8 font-sans">
-            <div className="flex shrink-0 items-center pr-8">
-              <span className="text-xs font-medium tracking-widest whitespace-nowrap text-muted uppercase">
-                Up next
-              </span>
-            </div>
+          {/* Dot-and-line "Up next" timeline. */}
+          <div className="mt-10 border-t border-border pt-8">
+            <h2 className="text-xs font-medium tracking-widest text-muted uppercase">Up next</h2>
 
             {upcoming.length === 0 ? (
-              <div className="flex items-center px-8">
-                <p className="text-sm text-muted italic">{gapMessage ?? "Nothing on the calendar."}</p>
-              </div>
+              <p className="mt-5 text-sm text-muted italic">{gapMessage ?? "Nothing on the calendar."}</p>
             ) : (
-              upcoming.map((event) => (
-                <div key={event.id} className="flex min-w-0 flex-col justify-center px-8">
-                  <span className="text-xs font-semibold text-accent">
-                    {event.allDay ? "All day" : formatTime(event.start)}
-                  </span>
-                  <span className="font-display mt-1 truncate text-base text-ink">{event.title}</span>
-                </div>
-              ))
+              <ul className="mt-6 space-y-5">
+                {upcoming.map((event, index) => {
+                  const isLast = index === upcoming.length - 1;
+                  return (
+                    <li key={event.id} className="relative flex items-baseline gap-4 pl-8">
+                      {!isLast && (
+                        <span
+                          aria-hidden
+                          className="absolute top-3 left-[3px] w-0.5 bg-muted/25"
+                          style={{ height: "calc(100% + 1.25rem)" }}
+                        />
+                      )}
+                      <span
+                        aria-hidden
+                        className="absolute top-1.5 left-0 h-2 w-2 rounded-full border-2 border-paper"
+                        style={{ backgroundColor: eventColor(event) }}
+                      />
+                      <span className="font-hand w-20 shrink-0 text-sm text-accent">
+                        {event.allDay ? "all day" : formatTime(event.start)}
+                      </span>
+                      <span className="text-ink">{event.title}</span>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
 
-            <div className="ml-auto flex items-center pl-8">
-              <Link href="/calendar" className="text-xs whitespace-nowrap text-accent hover:text-ink">
+            <div className="mt-5 flex items-baseline justify-between">
+              {gapMessage && upcoming.length > 0 ? (
+                <p className="text-sm text-muted italic">{gapMessage}</p>
+              ) : (
+                <span />
+              )}
+              <Link href="/calendar" className="text-xs text-muted hover:text-ink">
                 Full calendar →
               </Link>
             </div>
