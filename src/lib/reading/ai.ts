@@ -3,7 +3,10 @@ import { MEDIA_TYPES, type MediaType } from "./constants";
 
 const client = new Anthropic();
 
-const MODEL = "claude-opus-5";
+// Sonnet 5 over Opus 5 — near-Opus quality on this kind of synthesis/
+// extraction task at roughly 2.5x lower cost, and this only ever runs for
+// the single owner (see requireOwner() in server/actions/reading.ts).
+const MODEL = "claude-sonnet-5";
 
 // The brief's core distinction: this is a synthesis/challenge/connection
 // layer, never a summary of what the user already wrote — and it must stay
