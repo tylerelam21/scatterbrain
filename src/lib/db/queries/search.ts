@@ -28,6 +28,8 @@ function hrefFor(contentType: ContentType, contentId: string, slug?: string): st
       return slug ? `/photos/${slug}` : "/photos";
     case "CALENDAR_EVENT":
       return `/calendar?event=${contentId}`;
+    case "READING_ENTRY":
+      return `/reading/${contentId}`;
   }
 }
 

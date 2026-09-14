@@ -4,6 +4,7 @@ export * from "./calendar";
 export * from "./chess";
 export * from "./journal";
 export * from "./photos";
+export * from "./reading";
 export * from "./relationships";
 export * from "./search";
 export * from "./settings";

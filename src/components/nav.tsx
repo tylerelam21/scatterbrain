@@ -8,6 +8,7 @@ import { MobileNavToggle } from "@/components/mobile-nav-toggle";
 const ownerCoreLinks = [
   { href: "/", label: "Today" },
   { href: "/calendar", label: "Calendar" },
+  { href: "/reading", label: "Reading" },
   { href: "/studio", label: "Studio" },
   { href: "/?view=public", label: "Public site" },
 ];

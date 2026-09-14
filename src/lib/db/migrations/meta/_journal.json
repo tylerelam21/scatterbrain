@@ -43,6 +43,13 @@
       "when": 1788955757813,
       "tag": "0006_wakeful_sandman",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789353079059,
+      "tag": "0007_perpetual_skreet",
+      "breakpoints": true
     }
   ]
 }

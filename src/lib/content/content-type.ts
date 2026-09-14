@@ -7,6 +7,7 @@ export const CONTENT_TYPE_OPTIONS = [
   "PHOTO",
   "PHOTO_COLLECTION",
   "CALENDAR_EVENT",
+  "READING_ENTRY",
 ] as const;
 
 export type ContentType = (typeof CONTENT_TYPE_OPTIONS)[number];
@@ -18,6 +19,7 @@ export const CONTENT_TYPE_LABELS: Record<ContentType, string> = {
   PHOTO: "Photos",
   PHOTO_COLLECTION: "Photos",
   CALENDAR_EVENT: "Calendar",
+  READING_ENTRY: "Reading",
 };
 
 // Search groups content by user-facing section rather than raw content
@@ -28,6 +30,7 @@ export const SEARCH_GROUPS = [
   { key: "work", label: "Work", types: ["PROJECT"] },
   { key: "photos", label: "Photos", types: ["PHOTO", "PHOTO_COLLECTION"] },
   { key: "calendar", label: "Calendar", types: ["CALENDAR_EVENT"] },
+  { key: "reading", label: "Reading", types: ["READING_ENTRY"] },
 ] as const satisfies { key: string; label: string; types: ContentType[] }[];
 
 export type SearchGroupKey = (typeof SEARCH_GROUPS)[number]["key"];

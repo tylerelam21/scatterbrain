@@ -22,4 +22,5 @@ export const contentTypeEnum = pgEnum("content_type", [
   "PHOTO",
   "PHOTO_COLLECTION",
   "CALENDAR_EVENT",
+  "READING_ENTRY",
 ]);
