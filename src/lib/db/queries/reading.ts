@@ -57,7 +57,13 @@ export async function findWorkByTitle(userId: string, title: string) {
 
 export async function createWork(
   userId: string,
-  input: { title: string; creator?: string | null; mediaType?: MediaType; url?: string | null },
+  input: {
+    title: string;
+    creator?: string | null;
+    mediaType?: MediaType;
+    url?: string | null;
+    coverImageUrl?: string | null;
+  },
 ) {
   const [created] = await db
     .insert(works)
@@ -67,6 +73,7 @@ export async function createWork(
       creator: input.creator || null,
       mediaType: input.mediaType ?? "OTHER",
       url: input.url || null,
+      coverImageUrl: input.coverImageUrl || null,
     })
     .returning();
   return created;

@@ -37,6 +37,7 @@ export default async function ReadingPage() {
               workTitle={work.title}
               workCreator={work.creator}
               mediaType={work.mediaType}
+              coverImageUrl={work.coverImageUrl}
             />
           ))}
         </div>

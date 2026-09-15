@@ -1,6 +1,6 @@
 {
-  "id": "5b2d0512-2cae-48b1-9891-21fa77d24f90",
-  "prevId": "1356ddc0-3da4-43f7-a1d3-0308ad62acee",
+  "id": "3c6f96ee-77da-4631-af20-8f5ecaf6b791",
+  "prevId": "5b2d0512-2cae-48b1-9891-21fa77d24f90",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1565,6 +1565,12 @@
         },
         "url": {
           "name": "url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cover_image_url": {
+          "name": "cover_image_url",
           "type": "text",
           "primaryKey": false,
           "notNull": false

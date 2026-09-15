@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/lib/auth/require-owner";
 import * as readingQueries from "@/lib/db/queries/reading";
 import { generateMoreRecommendations, generateReflection } from "@/lib/reading/ai";
+import { searchBooks, type BookSearchResult } from "@/lib/reading/book-search";
 import { MEDIA_TYPES, type MediaType, type ReadingContent } from "@/lib/reading/constants";
 import { VISIBILITY_OPTIONS, type Visibility } from "@/lib/content/visibility";
 
@@ -17,6 +18,15 @@ function revalidateReading(id?: string) {
 function excerpt(text: string, max = 220) {
   const trimmed = text.trim();
   return trimmed.length > max ? `${trimmed.slice(0, max)}…` : trimmed;
+}
+
+// -- Book lookup -------------------------------------------------------------
+
+// Called directly from the New Entry form's client component (not a form
+// submit) while the user types a Book title — Open Library, no API key.
+export async function searchBooksAction(query: string): Promise<BookSearchResult[]> {
+  await requireOwner();
+  return searchBooks(query);
 }
 
 // -- Creation --------------------------------------------------------------
@@ -41,7 +51,13 @@ export async function createReadingEntry(formData: FormData) {
     const mediaType = (MEDIA_TYPES as readonly string[]).includes(mediaTypeRaw)
       ? (mediaTypeRaw as MediaType)
       : "OTHER";
-    const work = await readingQueries.createWork(owner.id, { title, creator, mediaType });
+    const coverImageUrl = String(formData.get("workCoverImageUrl") ?? "").trim();
+    const work = await readingQueries.createWork(owner.id, {
+      title,
+      creator,
+      mediaType,
+      coverImageUrl: coverImageUrl || null,
+    });
     workId = work.id;
   }
 

@@ -25,6 +25,9 @@ export const works = pgTable("works", {
   creator: text("creator"),
   mediaType: mediaTypeEnum("media_type").notNull().default("OTHER"),
   url: text("url"),
+  // Optional — populated from a book-search lookup (lib/reading/book-search.ts)
+  // when the user picks a match; never required (brief: no cover art for MVP).
+  coverImageUrl: text("cover_image_url"),
   ...timestamps,
 });
 

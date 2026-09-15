@@ -46,11 +46,21 @@ export default async function ReadingEntryPage({ params }: { params: Promise<{ i
 
   return (
     <main className="mx-auto w-full max-w-5xl flex-1 px-6 py-16">
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-muted">
-          {MEDIA_TYPE_LABELS[work.mediaType]} · {work.title}
-          {work.creator ? ` by ${work.creator}` : ""}
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start gap-4">
+          {work.coverImageUrl && (
+            // eslint-disable-next-line @next/next/no-img-element -- external Open Library cover, not a static asset next/image can optimize
+            <img
+              src={work.coverImageUrl}
+              alt=""
+              className="h-20 w-14 shrink-0 border border-border object-cover"
+            />
+          )}
+          <p className="text-xs text-muted">
+            {MEDIA_TYPE_LABELS[work.mediaType]} · {work.title}
+            {work.creator ? ` by ${work.creator}` : ""}
+          </p>
+        </div>
         <DeleteReadingEntryForm id={entry.id} />
       </div>
 
