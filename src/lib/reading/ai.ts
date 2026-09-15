@@ -59,12 +59,16 @@ const RECOMMENDATION_SCHEMA = {
   additionalProperties: false,
 } as const;
 
+// Note: Claude's structured-output JSON Schema support rejects array
+// minItems/maxItems values other than 0 or 1 (400s on request) — so counts
+// are bounded by prompt instruction plus a defensive .slice() on the
+// parsed result below, not by the schema itself.
 const REFLECTION_SCHEMA = {
   type: "object",
   properties: {
     reflection: { type: "string" },
-    themes: { type: "array", items: { type: "string" }, minItems: 2, maxItems: 6 },
-    recommendations: { type: "array", items: RECOMMENDATION_SCHEMA, minItems: 1, maxItems: 4 },
+    themes: { type: "array", items: { type: "string" } },
+    recommendations: { type: "array", items: RECOMMENDATION_SCHEMA },
   },
   required: ["reflection", "themes", "recommendations"],
   additionalProperties: false,
@@ -73,7 +77,7 @@ const REFLECTION_SCHEMA = {
 const MORE_RECOMMENDATIONS_SCHEMA = {
   type: "object",
   properties: {
-    recommendations: { type: "array", items: RECOMMENDATION_SCHEMA, minItems: 1, maxItems: 3 },
+    recommendations: { type: "array", items: RECOMMENDATION_SCHEMA },
   },
   required: ["recommendations"],
   additionalProperties: false,
@@ -153,7 +157,12 @@ export async function generateReflection(input: ReflectionInput): Promise<Reflec
   const textBlock = response.content.find((block): block is Anthropic.TextBlock => block.type === "text");
   if (!textBlock) throw new Error("Claude returned no text content for the reading reflection");
 
-  return JSON.parse(textBlock.text) as ReflectionResult;
+  const parsed = JSON.parse(textBlock.text) as ReflectionResult;
+  return {
+    ...parsed,
+    themes: parsed.themes.slice(0, 6),
+    recommendations: parsed.recommendations.slice(0, 4),
+  };
 }
 
 // "More Like This" — scoped to one existing recommendation the user liked,
@@ -183,5 +192,6 @@ Suggest 2-3 more works in a similar vein, each still tied back to my actual entr
   const textBlock = response.content.find((block): block is Anthropic.TextBlock => block.type === "text");
   if (!textBlock) throw new Error("Claude returned no text content for more recommendations");
 
-  return (JSON.parse(textBlock.text) as { recommendations: RecommendationResult[] }).recommendations;
+  const parsed = JSON.parse(textBlock.text) as { recommendations: RecommendationResult[] };
+  return parsed.recommendations.slice(0, 3);
 }
