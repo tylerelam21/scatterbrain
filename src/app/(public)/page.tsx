@@ -17,7 +17,6 @@ import { HomeHeroSection } from "@/components/home/home-hero-section";
 import { BestMove } from "@/components/chess/best-move";
 import { BrainMap } from "@/components/home/brain-map";
 import { PublicIdentity } from "@/components/home/public-identity";
-import { StickyNote, HeroAccent, ScrollCue } from "@/components/home/hero-ornaments";
 import { Lately } from "@/components/home/lately";
 import { FeaturedWork } from "@/components/home/featured-work";
 import { SiteFooter } from "@/components/home/site-footer";
@@ -120,7 +119,6 @@ export default async function Home({ searchParams }: HomeProps) {
     listProjects({ isLab: false, publicOnly: true }),
     getRecentActivity(),
   ]);
-  const stickyNote = content["home.stickyNote"] ?? "";
 
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 py-24">
@@ -138,22 +136,12 @@ export default async function Home({ searchParams }: HomeProps) {
         </div>
       )}
 
-      <div className="flex flex-col items-start gap-10 sm:flex-row sm:items-start sm:justify-between">
-        <PublicIdentity />
-        {(stickyNote || isOwner) && (
-          <div className="flex items-start gap-6">
-            <StickyNote text={stickyNote} editable={isOwner} />
-            <HeroAccent />
-          </div>
-        )}
-      </div>
+      <PublicIdentity />
 
       <Lately activity={recentActivity} />
-      <ScrollCue />
 
       <FeaturedWork
         projects={featuredProjects.filter((p) => p.featured)}
-        aboutAnnotation={content["home.aboutAnnotation"] ?? ""}
         aboutTagline={content["home.aboutTagline"] ?? ""}
         aboutBody={content["home.aboutBody"] ?? ""}
         editable={isOwner}

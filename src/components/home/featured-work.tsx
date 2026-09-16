@@ -28,8 +28,6 @@ interface SpreadProps {
   linkLabel: string;
   imageSide: "left" | "right";
   image: React.ReactNode;
-  annotation?: string;
-  onSaveAnnotation?: (value: string) => Promise<void>;
   editable: boolean;
 }
 
@@ -45,8 +43,6 @@ function Spread({
   linkLabel,
   imageSide,
   image,
-  annotation,
-  onSaveAnnotation,
   editable,
 }: SpreadProps) {
   const textBlock = (
@@ -95,25 +91,7 @@ function Spread({
   );
 
   return (
-    <div className="relative grid grid-cols-1 items-center gap-10 py-16 md:grid-cols-2 md:gap-14 md:py-24">
-      {(annotation || (editable && onSaveAnnotation)) &&
-        (onSaveAnnotation ? (
-          <div className="font-hand absolute -top-8 right-0 hidden max-w-[11rem] -rotate-2 text-right text-lg text-accent/80 md:block">
-            <InlineEditable
-              value={annotation ?? ""}
-              editable={editable}
-              onSave={onSaveAnnotation}
-              placeholder="A handwritten note"
-              className="font-hand text-lg text-accent/80"
-            />
-          </div>
-        ) : (
-          annotation && (
-            <p className="font-hand absolute -top-8 right-0 hidden max-w-[11rem] -rotate-2 text-right text-lg text-accent/80 md:block">
-              {annotation}
-            </p>
-          )
-        ))}
+    <div className="grid grid-cols-1 items-center gap-10 py-16 md:grid-cols-2 md:gap-14 md:py-24">
       {imageSide === "right" ? (
         <>
           {textBlock}
@@ -137,18 +115,16 @@ type SpreadItem = { kind: "about" } | { kind: "project"; project: FeaturedProjec
 // separate icon row. About always renders (real content, no missing
 // asset); projects with no cover image yet get a plain blank placeholder
 // rather than a stock photo standing in for real work. When `editable`
-// (owner viewing ?view=public), every heading/tagline/body/annotation is
-// click-to-edit inline via InlineEditable, saving straight through
-// setSiteContentField (About) or updateProjectField (each project).
+// (owner viewing ?view=public), every heading/tagline/body is click-to-edit
+// inline via InlineEditable, saving straight through setSiteContentField
+// (About) or updateProjectField (each project).
 export function FeaturedWork({
   projects,
-  aboutAnnotation,
   aboutTagline,
   aboutBody,
   editable,
 }: {
   projects: FeaturedProject[];
-  aboutAnnotation: string;
   aboutTagline: string;
   aboutBody: string;
   editable: boolean;
@@ -183,8 +159,6 @@ export function FeaturedWork({
                 href="/about"
                 linkLabel="Read the story"
                 imageSide={imageSide}
-                annotation={aboutAnnotation}
-                onSaveAnnotation={setSiteContentField.bind(null, "home.aboutAnnotation")}
                 editable={editable}
                 image={
                   // eslint-disable-next-line @next/next/no-img-element -- fixed static illustration, not a photo needing next/image optimization

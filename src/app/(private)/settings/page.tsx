@@ -135,26 +135,6 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
         </p>
         <form action={setSiteContent} className="mt-4 space-y-4">
           <label className="block">
-            <span className="text-xs text-muted">Sticky note quote</span>
-            <input
-              type="text"
-              name="home.stickyNote"
-              defaultValue={siteContent["home.stickyNote"] ?? ""}
-              placeholder="A short line, pinned next to your name"
-              className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
-            />
-          </label>
-          <label className="block">
-            <span className="text-xs text-muted">About annotation</span>
-            <input
-              type="text"
-              name="home.aboutAnnotation"
-              defaultValue={siteContent["home.aboutAnnotation"] ?? ""}
-              placeholder="A small handwritten note next to the About spread"
-              className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
-            />
-          </label>
-          <label className="block">
             <span className="text-xs text-muted">About tagline</span>
             <input
               type="text"

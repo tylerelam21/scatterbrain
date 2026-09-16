@@ -12,7 +12,7 @@ export function Lately({ activity }: { activity: RecentActivity | null }) {
   const verb = activity.kind === "album" ? "adding to" : "working on";
 
   return (
-    <p className="font-hand mt-4 text-lg text-muted">
+    <p className="mt-4 text-lg text-muted">
       Lately, {verb}{" "}
       <Link
         href={activity.href}
