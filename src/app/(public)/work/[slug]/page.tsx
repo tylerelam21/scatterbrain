@@ -4,9 +4,10 @@ import { generateHTML } from "@tiptap/core";
 import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import { auth } from "@/lib/auth";
-import { getProjectBySlug, listTechnologiesForProject } from "@/lib/db/queries/work";
-import { PROJECT_STATUSES, type ProjectContent } from "@/lib/work/constants";
+import { getProjectBySlug, listProjects, listTechnologiesForProject } from "@/lib/db/queries/work";
+import { PROJECT_STATUSES, PROJECT_STATUS_LABELS, type ProjectContent } from "@/lib/work/constants";
 import { VISIBILITY_OPTIONS } from "@/lib/content/visibility";
+import { formatRelativeDate } from "@/lib/format/relative-date";
 import { addProjectTechnology, removeProjectTechnology, updateProjectMeta } from "@/server/actions/work";
 import { ProjectEditor } from "@/components/work/project-editor";
 import { ProjectHeroUploader } from "@/components/work/project-hero-uploader";
@@ -159,70 +160,143 @@ export default async function ProjectPage({
     ? generateHTML(project.contentJson as ProjectContent, [StarterKit, Image])
     : "";
 
+  // Prev/next reuse the exact same ordering as the /work listing, so
+  // "next project" always matches what you'd hit browsing there.
+  const siblings = await listProjects({ isLab: project.isLab, publicOnly: true });
+  const currentIndex = siblings.findIndex((p) => p.id === project.id);
+  const prevProject = currentIndex > 0 ? siblings[currentIndex - 1] : null;
+  const nextProject =
+    currentIndex >= 0 && currentIndex < siblings.length - 1 ? siblings[currentIndex + 1] : null;
+
+  const lastUpdated = project.githubLastPushedAt ?? project.updatedAt;
+
   return (
-    <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-16">
-      <Link href="/work" className="text-xs text-muted hover:text-ink">
-        ← All work
-      </Link>
+    <article className="flex-1">
+      <div className="mx-auto w-full max-w-5xl px-6 pt-16">
+        <Link href="/work" className="text-xs text-muted hover:text-ink">
+          ← All work
+        </Link>
 
-      {project.heroImageId && (
-        // eslint-disable-next-line @next/next/no-img-element -- authorized, dynamically-owned photo served through /api/photos/[id]
-        <img
-          src={`/api/photos/${project.heroImageId}`}
-          alt=""
-          className="mt-6 block h-auto max-h-[480px] w-full rounded-lg object-cover"
-          style={{ boxShadow: "var(--note-shadow)" }}
-        />
-      )}
-
-      <div className="mx-auto max-w-2xl">
-        <p className="mt-8 text-xs text-muted uppercase">{project.status}</p>
-        <h1 className="font-display mt-2 text-4xl tracking-tight text-ink md:text-5xl">{project.title}</h1>
-        {project.tagline && <p className="mt-3 text-xl text-muted">{project.tagline}</p>}
-
-        {technologies.length > 0 && (
-          <div className="mt-5 flex flex-wrap gap-2">
-            {technologies.map((tech) => (
-              <span key={tech.id} className="rounded-full border border-border px-3 py-1 text-xs text-muted">
-                {tech.name}
-              </span>
-            ))}
-          </div>
+        {project.heroImageId && (
+          // eslint-disable-next-line @next/next/no-img-element -- authorized, dynamically-owned photo served through /api/photos/[id]
+          <img
+            src={`/api/photos/${project.heroImageId}`}
+            alt=""
+            className="mt-6 block aspect-[16/9] w-full rounded-lg object-cover"
+            style={{ boxShadow: "var(--note-shadow)" }}
+          />
         )}
 
-        {(project.liveUrl || project.repositoryUrl) && (
-          <div className="mt-6 flex gap-3">
-            {project.liveUrl && (
-              <a
-                href={project.liveUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-full bg-ink px-4 py-1.5 text-xs font-medium text-paper hover:bg-accent"
-              >
-                Visit live →
-              </a>
+        <div className="mt-12 grid grid-cols-1 gap-14 lg:grid-cols-[1fr_260px]">
+          <div className="min-w-0 max-w-2xl">
+            <div className="flex items-center gap-3 text-xs text-muted">
+              <span className="uppercase">{PROJECT_STATUS_LABELS[project.status]}</span>
+              {project.featured && <span className="text-accent">★ Featured</span>}
+            </div>
+            <h1 className="font-display mt-2 text-4xl tracking-tight text-ink md:text-5xl">
+              {project.title}
+            </h1>
+            {project.tagline && <p className="mt-3 text-xl text-muted">{project.tagline}</p>}
+
+            {(project.liveUrl || project.repositoryUrl) && (
+              <div className="mt-6 flex gap-3">
+                {project.liveUrl && (
+                  <a
+                    href={project.liveUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full bg-ink px-4 py-1.5 text-xs font-medium text-paper hover:bg-accent"
+                  >
+                    Visit live →
+                  </a>
+                )}
+                {project.repositoryUrl && (
+                  <a
+                    href={project.repositoryUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-full border border-border px-4 py-1.5 text-xs text-muted hover:text-ink"
+                  >
+                    Source →
+                  </a>
+                )}
+              </div>
             )}
-            {project.repositoryUrl && (
-              <a
-                href={project.repositoryUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-full border border-border px-4 py-1.5 text-xs text-muted hover:text-ink"
-              >
-                Source →
-              </a>
+
+            {project.summary && (
+              <p className="font-display mt-10 border-l-2 border-accent pl-6 text-2xl leading-snug text-ink italic">
+                {project.summary}
+              </p>
+            )}
+
+            {bodyHtml && (
+              <div className="journal-editor mt-10" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
             )}
           </div>
-        )}
 
-        {project.summary && (
-          <p className="font-display mt-10 text-2xl leading-snug text-ink italic">{project.summary}</p>
-        )}
+          <aside className="h-fit lg:sticky lg:top-24">
+            <div className="border-t border-border pt-4">
+              <h2 className="text-xs font-medium tracking-widest text-muted uppercase">At a glance</h2>
+              <dl className="mt-4 space-y-4 text-sm">
+                <div>
+                  <dt className="text-xs text-muted">Status</dt>
+                  <dd className="mt-0.5 text-ink">{PROJECT_STATUS_LABELS[project.status]}</dd>
+                </div>
+                {technologies.length > 0 && (
+                  <div>
+                    <dt className="text-xs text-muted">Stack</dt>
+                    <dd className="mt-1.5 flex flex-wrap gap-1.5">
+                      {technologies.map((tech) => (
+                        <span
+                          key={tech.id}
+                          className="rounded-full border border-border px-2.5 py-0.5 text-xs text-muted"
+                        >
+                          {tech.name}
+                        </span>
+                      ))}
+                    </dd>
+                  </div>
+                )}
+                {project.publishedAt && (
+                  <div>
+                    <dt className="text-xs text-muted">Published</dt>
+                    <dd className="mt-0.5 text-ink">
+                      {new Date(project.publishedAt).toLocaleDateString(undefined, {
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </dd>
+                  </div>
+                )}
+                <div>
+                  <dt className="text-xs text-muted">Updated</dt>
+                  <dd className="mt-0.5 text-ink">{formatRelativeDate(new Date(lastUpdated))}</dd>
+                </div>
+              </dl>
+            </div>
+          </aside>
+        </div>
 
-        {bodyHtml && (
-          <div className="journal-editor mt-10" dangerouslySetInnerHTML={{ __html: bodyHtml }} />
+        {(prevProject || nextProject) && (
+          <nav className="mt-24 flex items-center justify-between gap-4 border-t border-border py-8 text-sm">
+            {prevProject ? (
+              <Link href={`/work/${prevProject.slug}`} className="min-w-0 text-muted hover:text-ink">
+                ← <span className="text-ink">{prevProject.title}</span>
+              </Link>
+            ) : (
+              <span />
+            )}
+            {nextProject && (
+              <Link
+                href={`/work/${nextProject.slug}`}
+                className="min-w-0 text-right text-muted hover:text-ink"
+              >
+                <span className="text-ink">{nextProject.title}</span> →
+              </Link>
+            )}
+          </nav>
         )}
       </div>
-    </main>
+    </article>
   );
 }
