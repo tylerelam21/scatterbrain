@@ -14,24 +14,34 @@ import { ProjectHeroUploader } from "@/components/work/project-hero-uploader";
 import { SlugForm } from "@/components/work/slug-form";
 import { DeleteProjectForm } from "@/components/work/delete-project-form";
 
-export default async function ProjectPage({
-  params,
-}: {
+interface ProjectPageProps {
   params: Promise<{ slug: string }>;
-}) {
+  searchParams: Promise<{ view?: string }>;
+}
+
+export default async function ProjectPage({ params, searchParams }: ProjectPageProps) {
   const session = await auth();
   const isOwner = session?.user?.role === "OWNER";
   const { slug } = await params;
+  const { view } = await searchParams;
+  const forcePublicView = view === "public";
 
   const project = await getProjectBySlug(slug, { publicOnly: !isOwner });
   if (!project) notFound();
 
   const technologies = await listTechnologiesForProject(project.id);
 
-  if (isOwner) {
+  if (isOwner && !forcePublicView) {
     return (
       <main className="mx-auto w-full max-w-2xl flex-1 px-6 py-16">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-full border border-border px-4 py-2 text-xs text-muted">
+          <span>See the visitor view without leaving edit mode.</span>
+          <Link href={`/work/${project.slug}?view=public`} className="hover:text-ink">
+            Preview as visitor →
+          </Link>
+        </div>
+
+        <div className="mt-6 flex items-center justify-between">
           <SlugForm id={project.id} slug={project.slug} />
           <DeleteProjectForm id={project.id} isLab={project.isLab} />
         </div>
@@ -173,6 +183,15 @@ export default async function ProjectPage({
   return (
     <article className="flex-1">
       <div className="mx-auto w-full max-w-5xl px-6 pt-16">
+        {isOwner && forcePublicView && (
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-full border border-border px-4 py-2 text-xs text-muted">
+            <span>This is what visitors see.</span>
+            <Link href={`/work/${project.slug}`} className="hover:text-ink">
+              Back to edit
+            </Link>
+          </div>
+        )}
+
         <Link href="/work" className="text-xs text-muted hover:text-ink">
           ← All work
         </Link>
