@@ -66,18 +66,17 @@ export interface AutosaveState {
   savedAt: number;
 }
 
-// PRD §12.4-style autosave, reused for the project body — the editor is
-// always the source of truth locally, this only ever pushes state out.
-export async function autosaveProject(
+// Body-only autosave for the unified case-study page — title/tagline/
+// summary are saved independently via updateProjectField (InlineEditable),
+// so this must never touch them, or a body keystroke could stomp an
+// inline edit made moments earlier from stale ref values.
+export async function autosaveProjectBody(
   id: string,
   currentSlug: string,
-  data: { title: string; tagline: string; summary: string; contentJson: ProjectContent; plainText: string },
+  data: { contentJson: ProjectContent; plainText: string },
 ): Promise<AutosaveState> {
   await requireOwner();
   await workQueries.updateProject(id, {
-    title: data.title || "Untitled",
-    tagline: data.tagline || null,
-    summary: data.summary || null,
     contentJson: data.contentJson,
     plainText: data.plainText,
   });
