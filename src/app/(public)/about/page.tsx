@@ -6,12 +6,16 @@ import { setSiteContentField } from "@/server/actions/site";
 import { InlineEditable } from "@/components/home/inline-editable";
 
 const ABOUT_TAGLINE_DEFAULT = "The long way here.";
-const ABOUT_BODY_DEFAULT =
-  "Alpharetta → Athens → Atlanta. A story about where I came from, what I care about, and why I make things.";
+const ABOUT_BODY_DEFAULT = `I grew up in Alpharetta, studied Management Information Systems and International Business at UGA, and started my career in consulting at EY. Since then I've moved through sales, operations leadership, project management, and most recently independent software development — less a straight line than a series of jobs that kept teaching me the same thing: I like figuring out how things work, then making them work better.
 
-// The real content here — Tyler's actual story, more autobiographical
-// than a LinkedIn summary — is his to write, not mine to draft. This is
-// the structural shell with sensible defaults, fully owner-editable.
+I'm drawn to building — identifying a gap, a clumsy process, something nobody's bothered to fix — more than climbing toward a title. I've managed painting crews, built internal software for job costing, and started more side projects than I can count. The thread running through all of it is less "software engineer" or "operations guy" and more just: someone who likes making useful things.
+
+I'm as interested in theology and political philosophy as I am in product design — Tim Keller and N.T. Wright sit on the same shelf as whatever I'm reading about cities or software. My faith shapes how I think about work, vocation, and what's actually worth building. I'm also fluent in Spanish and genuinely care about immigrant communities and cross-cultural life — not as a professional specialty, just as something that's shaped how I see the world.
+
+This site is where all of that lives in one place — not a résumé, just an honest record of what I'm building, reading, and thinking about. If any of it resonates, say hello.`;
+
+// Real content — drafted from Tyler's own brand brief, his to edit
+// further (inline here or via Settings), not a placeholder.
 export default async function AboutPage() {
   const session = await auth();
   const isOwner = session?.user?.role === "OWNER";
@@ -38,7 +42,7 @@ export default async function AboutPage() {
           editable={isOwner}
           onSave={setSiteContentField.bind(null, "home.aboutBody")}
           as="textarea"
-          rows={6}
+          rows={14}
           placeholder={ABOUT_BODY_DEFAULT}
           className="block whitespace-pre-wrap"
         />
