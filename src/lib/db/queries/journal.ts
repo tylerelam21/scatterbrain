@@ -11,6 +11,23 @@ export interface JournalListFilters {
   status?: JournalStatus;
 }
 
+// Public "Notes" — finished (COMPLETE), visibility=PUBLIC entries only,
+// for the new public-site Notes section and the homepage's "Recent Notes".
+export async function listPublicJournalEntries(userId: string, limit?: number) {
+  const query = db
+    .select()
+    .from(journalEntries)
+    .where(
+      and(
+        eq(journalEntries.userId, userId),
+        eq(journalEntries.visibility, "PUBLIC"),
+        eq(journalEntries.status, "COMPLETE"),
+      ),
+    )
+    .orderBy(desc(journalEntries.journalDate), desc(journalEntries.createdAt));
+  return limit ? query.limit(limit) : query;
+}
+
 // PRD §12.3 — chronological timeline, newest first; search + tags.
 export async function listJournalEntries(userId: string, filters: JournalListFilters) {
   const conditions = [eq(journalEntries.userId, userId)];

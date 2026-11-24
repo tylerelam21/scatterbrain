@@ -10,13 +10,18 @@ const ownerCoreLinks = [
   { href: "/calendar", label: "Calendar" },
   { href: "/reading", label: "Reading" },
   { href: "/studio", label: "Studio" },
+  { href: "/photos", label: "Photos" },
   { href: "/?view=public", label: "Public site" },
 ];
 
+// The new public identity's five primary sections (see the brand/IA
+// brief) — Photos and Lab are deliberately not part of visitor nav.
 const visitorCoreLinks = [
-  { href: "/work", label: "Work" },
   { href: "/about", label: "About" },
-  { href: "/lab", label: "Lab" },
+  { href: "/work", label: "Work" },
+  { href: "/notes", label: "Notes" },
+  { href: "/commonplace", label: "Commonplace" },
+  { href: "/now", label: "Now" },
 ];
 
 export function Nav({ session }: { session: Session | null }) {
@@ -28,8 +33,8 @@ export function Nav({ session }: { session: Session | null }) {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5">
         <div className="flex min-w-0 items-center gap-4">
           <Link href="/" className="flex shrink-0 items-center gap-3 text-sm tracking-tight text-ink">
-            <DoorMark aria-hidden className="h-12 w-auto text-ink" />
-            {isOwner ? "life-of-tyla" : "Tyler Elam"}
+            {isOwner && <DoorMark aria-hidden className="h-12 w-auto text-ink" />}
+            {isOwner ? "life-of-tyla" : "tyler elam."}
           </Link>
           {isOwner && (
             <form action="/search" method="get" className="hidden min-w-0 md:block">
@@ -50,9 +55,6 @@ export function Nav({ session }: { session: Session | null }) {
                 {link.label}
               </Link>
             ))}
-            <Link href="/photos" className="transition-colors hover:text-ink">
-              Photos
-            </Link>
           </nav>
 
           <div className="flex items-center gap-3 text-xs text-muted">
@@ -106,9 +108,6 @@ export function Nav({ session }: { session: Session | null }) {
                 {link.label}
               </Link>
             ))}
-            <Link href="/photos" className="transition-colors hover:text-accent">
-              Photos
-            </Link>
             {isOwner && (
               <Link href="/settings" className="transition-colors hover:text-accent">
                 Settings

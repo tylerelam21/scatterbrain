@@ -4,10 +4,10 @@ import { getRepoLastPushedAt } from "@/lib/github/client";
 
 // Vercel Cron (see vercel.json) hits this on a schedule with no session —
 // authenticated the same way as sync-calendars, via CRON_SECRET. Keeps
-// each project's githubLastPushedAt fresh so the homepage's "Lately"
-// signal reflects real coding activity, not just site edits, without
-// ever calling GitHub from a page render (unauthenticated calls are
-// capped at 60/hr — fine for a scheduled job, not for live traffic).
+// each project's githubLastPushedAt fresh (shown as "Updated" on each
+// project's case-study page) without ever calling GitHub from a page
+// render (unauthenticated calls are capped at 60/hr — fine for a
+// scheduled job, not for live traffic).
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get("authorization");
   if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {

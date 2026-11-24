@@ -8,7 +8,7 @@ import { getTopTags } from "@/lib/db/queries/tags";
 import { getOwnerUser } from "@/lib/db/queries/users";
 import { getAppSettings } from "@/lib/db/queries/settings";
 import { listProjects } from "@/lib/db/queries/work";
-import { getRecentActivity } from "@/lib/home/activity";
+import { listPublicJournalEntries } from "@/lib/db/queries/journal";
 import { getCurrentWeather } from "@/lib/home/weather";
 import { HOME_CITY } from "@/lib/home/location";
 import { getPuzzleForCurrentHour } from "@/lib/db/queries/chess";
@@ -16,9 +16,9 @@ import { SITE_CONTENT_KEYS } from "@/lib/site/content-keys";
 import { HomeHeroSection } from "@/components/home/home-hero-section";
 import { BestMove } from "@/components/chess/best-move";
 import { BrainMap } from "@/components/home/brain-map";
-import { PublicIdentity } from "@/components/home/public-identity";
-import { Lately } from "@/components/home/lately";
-import { FeaturedWork } from "@/components/home/featured-work";
+import { PublicIdentity, HERO_INTRO_DEFAULT } from "@/components/home/public-identity";
+import { SelectedProjects } from "@/components/home/selected-projects";
+import { RecentNotes } from "@/components/home/recent-notes";
 import { SiteFooter } from "@/components/home/site-footer";
 
 interface HomeProps {
@@ -112,16 +112,16 @@ export default async function Home({ searchParams }: HomeProps) {
   }
 
   const owner = await getOwnerUser();
-  const [content, featuredProjects, recentActivity] = await Promise.all([
+  const [content, featuredProjects, recentNotes] = await Promise.all([
     owner
       ? getAppSettings(owner.id, [...SITE_CONTENT_KEYS])
       : Promise.resolve({} as Record<string, string>),
     listProjects({ isLab: false, publicOnly: true }),
-    getRecentActivity(),
+    owner ? listPublicJournalEntries(owner.id, 5) : Promise.resolve([]),
   ]);
 
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-1 flex-col px-6 py-24">
+    <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-24">
       {isOwner && (
         <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-full border border-border px-4 py-2 text-xs text-muted">
           <span>This is what visitors see.</span>
@@ -136,16 +136,15 @@ export default async function Home({ searchParams }: HomeProps) {
         </div>
       )}
 
-      <PublicIdentity />
-
-      <Lately activity={recentActivity} />
-
-      <FeaturedWork
-        projects={featuredProjects.filter((p) => p.featured)}
-        aboutTagline={content["home.aboutTagline"] ?? ""}
-        aboutBody={content["home.aboutBody"] ?? ""}
+      <PublicIdentity
+        intro={content["home.heroIntro"] || HERO_INTRO_DEFAULT}
+        heroPhotoId={content["home.heroPhotoId"] || null}
         editable={isOwner}
       />
+
+      <SelectedProjects projects={featuredProjects.filter((p) => p.featured)} editable={isOwner} />
+
+      <RecentNotes notes={recentNotes} />
 
       <SiteFooter
         bio={content["home.footerBio"] ?? ""}

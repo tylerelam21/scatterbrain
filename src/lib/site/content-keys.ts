@@ -3,6 +3,8 @@
 // because a "use server" module can only export async functions — this
 // constant needs to be importable from plain server components too.
 export const SITE_CONTENT_KEYS = [
+  "home.heroPhotoId",
+  "home.heroIntro",
   "home.footerBio",
   "home.aboutTagline",
   "home.aboutBody",
