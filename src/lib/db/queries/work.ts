@@ -73,6 +73,36 @@ export async function createProject(isLab: boolean) {
   return created;
 }
 
+// GitHub import — unlike createProject's bare "Untitled" draft, this
+// arrives pre-filled from the repo itself. Still PRIVATE by default: the
+// owner reviews/writes a real summary before anything goes public.
+export async function createProjectFromGithubRepo(input: {
+  slug: string;
+  title: string;
+  tagline: string | null;
+  repositoryUrl: string;
+  liveUrl: string | null;
+}) {
+  const [created] = await db
+    .insert(projects)
+    .values({
+      slug: input.slug,
+      title: input.title,
+      tagline: input.tagline,
+      repositoryUrl: input.repositoryUrl,
+      liveUrl: input.liveUrl,
+    })
+    .returning();
+  await indexSearchDocument({
+    contentType: "PROJECT",
+    contentId: created.id,
+    title: created.title,
+    body: projectSearchBody(created),
+    visibility: created.visibility,
+  });
+  return created;
+}
+
 export async function updateProject(
   id: string,
   data: Partial<{

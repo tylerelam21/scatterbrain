@@ -1,7 +1,10 @@
 import { auth } from "@/lib/auth";
 import { listProjects } from "@/lib/db/queries/work";
+import { getAppSetting } from "@/lib/db/queries/settings";
+import { getOwnerUser } from "@/lib/db/queries/users";
 import { createProject } from "@/server/actions/work";
 import { ProjectCard } from "@/components/work/project-card";
+import { GithubImportPanel } from "@/components/work/github-import-panel";
 
 // Project creation happens right here (the button below) — there's no
 // private Studio app behind this anymore.
@@ -9,7 +12,11 @@ export default async function WorkPage() {
   const session = await auth();
   const isOwner = session?.user?.role === "OWNER";
 
-  const projects = await listProjects({ isLab: false, publicOnly: !isOwner });
+  const owner = await getOwnerUser();
+  const [projects, githubUsername] = await Promise.all([
+    listProjects({ isLab: false, publicOnly: !isOwner }),
+    owner ? getAppSetting(owner.id, "github.username") : Promise.resolve(null),
+  ]);
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-16">
@@ -26,6 +33,12 @@ export default async function WorkPage() {
           </form>
         )}
       </div>
+
+      {isOwner && (
+        <div className="mt-4">
+          <GithubImportPanel initialUsername={githubUsername ?? ""} />
+        </div>
+      )}
 
       {projects.length === 0 ? (
         <p className="mt-10 text-sm text-muted">Nothing published yet.</p>

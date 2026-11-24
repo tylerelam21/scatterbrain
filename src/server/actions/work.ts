@@ -5,9 +5,18 @@ import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/lib/auth/require-owner";
 import * as workQueries from "@/lib/db/queries/work";
 import * as photoQueries from "@/lib/db/queries/photos";
+import { getAppSetting, setAppSetting } from "@/lib/db/queries/settings";
 import { PROJECT_STATUSES, type ProjectContent, type ProjectStatus } from "@/lib/work/constants";
 import { VISIBILITY_OPTIONS, type Visibility } from "@/lib/content/visibility";
 import { slugify } from "@/lib/work/slug";
+import { listPublicRepos, parseGithubRepo, type GithubRepoSummary } from "@/lib/github/client";
+
+const GITHUB_USERNAME_KEY = "github.username";
+
+function repoKey(repositoryUrl: string): string | null {
+  const parsed = parseGithubRepo(repositoryUrl);
+  return parsed ? `${parsed.owner}/${parsed.repo}`.toLowerCase() : null;
+}
 
 function revalidateProject(slug?: string) {
   revalidatePath("/work");
@@ -153,6 +162,74 @@ export async function deleteProject(id: string, isLab: boolean) {
   await workQueries.deleteProject(id);
   revalidateProject();
   redirect(isLab ? "/lab" : "/work");
+}
+
+export async function setGithubUsername(formData: FormData) {
+  const owner = await requireOwner();
+  const username = String(formData.get("githubUsername") ?? "").trim();
+  await setAppSetting(owner.id, GITHUB_USERNAME_KEY, username);
+  revalidatePath("/work");
+}
+
+export type ImportableGithubRepo = GithubRepoSummary;
+
+export type ListImportableReposResult =
+  | { ok: true; repos: ImportableGithubRepo[] }
+  | { ok: false; error: "no-username" };
+
+// Public repos only (unauthenticated GitHub call), forks excluded, and
+// anything already pointed at by an existing project (any visibility —
+// see listProjectsWithRepo) filtered out so re-scanning never offers a
+// duplicate.
+export async function listImportableGithubRepos(): Promise<ListImportableReposResult> {
+  const owner = await requireOwner();
+  const username = (await getAppSetting(owner.id, GITHUB_USERNAME_KEY))?.trim();
+  if (!username) return { ok: false, error: "no-username" };
+
+  const [repos, existing] = await Promise.all([
+    listPublicRepos(username),
+    workQueries.listProjectsWithRepo(),
+  ]);
+  const existingKeys = new Set(
+    existing.map((p) => (p.repositoryUrl ? repoKey(p.repositoryUrl) : null)).filter(Boolean),
+  );
+
+  return {
+    ok: true,
+    repos: repos.filter((repo) => !repo.fork && !existingKeys.has(repoKey(repo.htmlUrl))),
+  };
+}
+
+// Creates one PRIVATE draft project per selected repo, pre-filled with
+// title/tagline/repositoryUrl — the owner reviews and publishes each one
+// individually from its own page, same as any other draft.
+export async function importGithubRepos(repoUrls: string[]) {
+  const owner = await requireOwner();
+  const username = (await getAppSetting(owner.id, GITHUB_USERNAME_KEY))?.trim();
+  if (!username || repoUrls.length === 0) return;
+
+  const repos = await listPublicRepos(username);
+  const byKey = new Map(repos.map((repo) => [repoKey(repo.htmlUrl), repo]));
+  const wanted = new Set(repoUrls.map(repoKey).filter(Boolean));
+
+  for (const key of wanted) {
+    const repo = byKey.get(key!);
+    if (!repo) continue;
+
+    let slug = slugify(repo.name);
+    if (await workQueries.getProjectBySlug(slug, { publicOnly: false })) {
+      slug = `${slug}-${Math.random().toString(36).slice(2, 6)}`;
+    }
+
+    await workQueries.createProjectFromGithubRepo({
+      slug,
+      title: repo.name,
+      tagline: repo.description,
+      repositoryUrl: repo.htmlUrl,
+      liveUrl: repo.homepage || null,
+    });
+  }
+  revalidateProject();
 }
 
 export async function addProjectTechnology(projectId: string, currentSlug: string, formData: FormData) {
