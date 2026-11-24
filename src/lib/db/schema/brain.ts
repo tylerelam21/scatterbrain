@@ -27,6 +27,9 @@ export const brainItems = pgTable("brain_items", {
   pinned: boolean("pinned").notNull().default(false),
   archived: boolean("archived").notNull().default(false),
   sourceUrl: text("source_url"),
+  // Book cover or article/page og:image, for Commonplace's card display —
+  // see lib/commonplace/link-preview.ts and server/actions/books.ts.
+  imageUrl: text("image_url"),
   // PRD §10.6 — resurfacing foundation: excludes items "resurfaced recently"
   // once Home actually surfaces one (Phase 4). Not written to yet.
   lastResurfacedAt: timestamp("last_resurfaced_at", { withTimezone: true }),
