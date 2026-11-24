@@ -1,12 +1,15 @@
 // Mirrors the project_status Postgres enum (src/lib/db/schema/work.ts).
+// The underlying enum values are unchanged (no migration) — only the
+// *display* labels shift toward the new identity's Built/In progress/
+// Exploring vocabulary.
 export const PROJECT_STATUSES = ["LIVE", "IN_PROGRESS", "EXPERIMENT", "ARCHIVED"] as const;
 
 export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 
 export const PROJECT_STATUS_LABELS: Record<ProjectStatus, string> = {
-  LIVE: "Live",
+  LIVE: "Built",
   IN_PROGRESS: "In progress",
-  EXPERIMENT: "Experiment",
+  EXPERIMENT: "Exploring",
   ARCHIVED: "Archived",
 };
 

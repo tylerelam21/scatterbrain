@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PROJECT_STATUS_LABELS, type ProjectStatus } from "@/lib/work/constants";
 
 interface ProjectCardProps {
   slug: string;
@@ -34,7 +35,7 @@ export function ProjectCard({
           )}
         </span>
         <span className="shrink-0 text-xs text-muted">
-          {status}
+          {PROJECT_STATUS_LABELS[status as ProjectStatus] ?? status}
           {isOwner && visibility !== "PUBLIC" && ` · ${visibility}`}
         </span>
       </div>
