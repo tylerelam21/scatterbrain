@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useTransition } from "react";
-import { searchBooksAction } from "@/server/actions/reading";
+import { searchBooksAction } from "@/server/actions/books";
 import { addShelfBook } from "@/server/actions/site";
 import type { BookSearchResult } from "@/lib/reading/book-search";
 

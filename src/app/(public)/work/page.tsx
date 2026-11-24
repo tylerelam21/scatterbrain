@@ -3,9 +3,8 @@ import { listProjects } from "@/lib/db/queries/work";
 import { createProject } from "@/server/actions/work";
 import { ProjectCard } from "@/components/work/project-card";
 
-// The private Brainstorm box that used to live here moved to Studio's
-// Work space — reachable from the owner's own nav, unlike this public
-// portfolio page.
+// Project creation happens right here (the button below) — there's no
+// private Studio app behind this anymore.
 export default async function WorkPage() {
   const session = await auth();
   const isOwner = session?.user?.role === "OWNER";

@@ -2,10 +2,12 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { getOwnerUser } from "@/lib/db/queries/users";
 import { listPublicJournalEntries } from "@/lib/db/queries/journal";
+import { createNote } from "@/server/actions/notes";
 
 // Public "Notes" — essays, observations, unfinished thoughts. Only
 // finished (COMPLETE), visibility=PUBLIC journal entries ever show here;
-// see listPublicJournalEntries.
+// see listPublicJournalEntries. Owner can publish a new one right here —
+// no separate private app to go write it in.
 export default async function NotesPage() {
   const session = await auth();
   const isOwner = session?.user?.role === "OWNER";
@@ -20,13 +22,26 @@ export default async function NotesPage() {
       </p>
 
       {isOwner && (
-        <p className="mt-4 text-xs text-muted">
-          Mark a journal entry Complete and Public from{" "}
-          <Link href="/studio?space=fun" className="underline hover:text-ink">
-            Studio
-          </Link>{" "}
-          to have it show up here.
-        </p>
+        <form action={createNote} className="mt-8 space-y-2 border-b border-border pb-8">
+          <input
+            type="text"
+            name="title"
+            placeholder="Title"
+            className="block w-full border-b border-border bg-transparent py-1 text-lg text-ink placeholder:text-muted focus:border-ink focus:outline-none"
+          />
+          <textarea
+            name="body"
+            rows={4}
+            placeholder="Write something…"
+            className="block w-full resize-none bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+          />
+          <button
+            type="submit"
+            className="rounded-full bg-ink px-4 py-1.5 text-xs font-medium text-paper hover:bg-accent"
+          >
+            Publish note
+          </button>
+        </form>
       )}
 
       {notes.length === 0 ? (

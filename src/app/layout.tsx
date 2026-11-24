@@ -3,7 +3,6 @@ import { Geist_Mono, Inter, Kalam, Newsreader } from "next/font/google";
 import Script from "next/script";
 import { auth } from "@/lib/auth";
 import { Nav } from "@/components/nav";
-import { CommandPalette } from "@/components/command-palette";
 import "./globals.css";
 
 const THEME_INIT_SCRIPT = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'){document.documentElement.setAttribute('data-theme','dark');}}catch(e){}})();`;
@@ -33,8 +32,8 @@ const kalam = Kalam({
 });
 
 export const metadata: Metadata = {
-  title: "life-of-tyla",
-  description: "Tyler Elam's personal hub — journal, calendar, ideas, work, and photography.",
+  title: "tyler elam.",
+  description: "Tyler Elam — builder, writer, and curious generalist based in Atlanta.",
 };
 
 export default async function RootLayout({ children }: LayoutProps<"/">) {
@@ -51,7 +50,6 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         </Script>
         <Nav session={session} />
         <div className="flex flex-1 flex-col">{children}</div>
-        {session?.user?.role === "OWNER" && <CommandPalette />}
       </body>
     </html>
   );

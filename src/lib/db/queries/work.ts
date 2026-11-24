@@ -30,18 +30,6 @@ export async function listProjects({ isLab, publicOnly }: ListProjectsOptions) {
     .orderBy(desc(projects.featured), asc(projects.sortOrder), desc(projects.createdAt));
 }
 
-// Studio's combined Projects tab — Work and Lab together, each row still
-// carrying its own isLab flag so the UI can badge experiments inline.
-export async function listAllProjects({ publicOnly }: { publicOnly: boolean }) {
-  const conditions = publicOnly ? [eq(projects.visibility, "PUBLIC")] : [];
-
-  return db
-    .select()
-    .from(projects)
-    .where(conditions.length ? and(...conditions) : undefined)
-    .orderBy(desc(projects.featured), asc(projects.sortOrder), desc(projects.createdAt));
-}
-
 // For the sync-github cron — every project pointed at a repo, regardless
 // of visibility, so the cached pushed_at doesn't go stale the moment a
 // draft goes public.

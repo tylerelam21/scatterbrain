@@ -1,7 +1,7 @@
 export type WorkLinkType = "google-sheet" | "google-slides" | "office" | "generic";
 
-// PRD-adjacent (Studio/Work brainstorm) — no API keys, no scraping: these
-// are all publicly documented embed viewers. Google's own iframe preview
+// No API keys, no scraping: these are all publicly documented embed
+// viewers. Google's own iframe preview
 // works for any sheet/deck the viewer has access to (they just need to be
 // signed in to Google in that browser tab); Microsoft's Office Online
 // viewer works for any publicly reachable .pptx URL, OneDrive/SharePoint

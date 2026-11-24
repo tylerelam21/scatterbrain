@@ -1,115 +1,21 @@
 import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { requireOwner } from "@/lib/auth/require-owner";
-import { addDays, nowDate, startOfDay } from "@/lib/calendar/dates";
-import { listEventsInRange } from "@/lib/db/queries/calendar";
-import { getResurfacedThoughtCandidate, markBrainItemResurfaced } from "@/lib/db/queries/brain";
-import { getTopTags } from "@/lib/db/queries/tags";
 import { getOwnerUser } from "@/lib/db/queries/users";
 import { getAppSettings } from "@/lib/db/queries/settings";
 import { listProjects } from "@/lib/db/queries/work";
 import { listPublicJournalEntries } from "@/lib/db/queries/journal";
-import { getCurrentWeather } from "@/lib/home/weather";
-import { HOME_CITY } from "@/lib/home/location";
-import { getPuzzleForCurrentHour } from "@/lib/db/queries/chess";
 import { SITE_CONTENT_KEYS } from "@/lib/site/content-keys";
-import { HomeHeroSection } from "@/components/home/home-hero-section";
-import { BestMove } from "@/components/chess/best-move";
-import { BrainMap } from "@/components/home/brain-map";
 import { PublicIdentity, HERO_INTRO_DEFAULT } from "@/components/home/public-identity";
 import { SelectedProjects } from "@/components/home/selected-projects";
 import { RecentNotes } from "@/components/home/recent-notes";
 import { SiteFooter } from "@/components/home/site-footer";
 
-interface HomeProps {
-  searchParams: Promise<{ view?: string }>;
-}
-
-// PRD §1, §10 — same URL, two identities: an authenticated owner gets the
-// private Home dashboard; anyone else gets the public landing. ?view=public
-// lets the owner see (and jump off to edit) the exact page visitors see,
-// without signing out — see nav.tsx's "Public site" link.
-export default async function Home({ searchParams }: HomeProps) {
+// One site, one view: the owner sees exactly what visitors see, just with
+// inline editing unlocked (see PublicIdentity/SelectedProjects/SiteFooter's
+// `editable` prop) — no separate private dashboard to maintain.
+export default async function Home() {
   const session = await auth();
   const isOwner = session?.user?.role === "OWNER";
-  const params = await searchParams;
-  const forcePublicView = params.view === "public";
-
-  if (isOwner && !forcePublicView) {
-    const owner = await requireOwner();
-    const today = nowDate();
-
-    const [events, resurfaced, topTags, weather, hourlyPuzzle] = await Promise.all([
-      listEventsInRange(owner.id, addDays(startOfDay(today), -1), addDays(today, 8)),
-      getResurfacedThoughtCandidate(owner.id),
-      getTopTags(owner.id, 8),
-      getCurrentWeather(),
-      getPuzzleForCurrentHour(),
-    ]);
-
-    if (resurfaced) {
-      await markBrainItemResurfaced(resurfaced.id);
-    }
-    const daysAgo = resurfaced
-      ? Math.floor((today.getTime() - resurfaced.createdAt.getTime()) / 86_400_000)
-      : null;
-
-    const firstName = owner.name?.trim().split(/\s+/)[0] || "there";
-
-    return (
-      <main className="mx-auto w-full max-w-7xl flex-1 px-6 py-20">
-        <HomeHeroSection
-          firstName={firstName}
-          events={events}
-          city={HOME_CITY}
-          tempF={weather.tempF}
-          weatherCode={weather.weatherCode}
-        />
-
-        {resurfaced && daysAgo !== null && (
-          <Link href={`/brain/${resurfaced.id}`} className="mt-10 block">
-            <p className="text-xs text-muted">From {daysAgo} days ago</p>
-            <p className="mt-1 truncate text-ink">{resurfaced.title || resurfaced.content}</p>
-          </Link>
-        )}
-
-        {topTags.length > 0 && (
-          <section className="mt-16">
-            <h2 className="text-xs font-medium tracking-widest text-muted uppercase">On my mind</h2>
-            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-3 text-lg">
-              {topTags.map((tag, index) => (
-                <Link
-                  key={tag.name}
-                  href="/studio?space=fun"
-                  className={
-                    index === 0
-                      ? "text-accent underline decoration-1 underline-offset-4"
-                      : "text-ink/70 hover:text-ink"
-                  }
-                >
-                  {tag.name}
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {hourlyPuzzle && (
-          <BestMove
-            key={hourlyPuzzle.puzzleKey}
-            puzzleKey={hourlyPuzzle.puzzleKey}
-            fen={hourlyPuzzle.puzzle.fen}
-            sideToMove={hourlyPuzzle.puzzle.sideToMove}
-            nextAt={hourlyPuzzle.nextAt.toISOString()}
-          />
-        )}
-
-        <section className="mt-16">
-          <BrainMap />
-        </section>
-      </main>
-    );
-  }
 
   const owner = await getOwnerUser();
   const [content, featuredProjects, recentNotes] = await Promise.all([
@@ -123,17 +29,12 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-24">
       {isOwner && (
-        <div className="mb-10 flex flex-wrap items-center justify-between gap-3 rounded-full border border-border px-4 py-2 text-xs text-muted">
-          <span>This is what visitors see.</span>
-          <span className="flex gap-4">
-            <Link href="/settings" className="hover:text-ink">
-              Edit homepage text
-            </Link>
-            <Link href="/" className="hover:text-ink">
-              Back to dashboard
-            </Link>
-          </span>
-        </div>
+        <Link
+          href="/settings"
+          className="mb-10 self-start rounded-full border border-border px-4 py-2 text-xs text-muted hover:text-ink"
+        >
+          Edit homepage text
+        </Link>
       )}
 
       <PublicIdentity

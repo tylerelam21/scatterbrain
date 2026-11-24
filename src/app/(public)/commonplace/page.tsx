@@ -4,9 +4,10 @@ import { listPublicBrainItems } from "@/lib/db/queries/brain";
 import { getAppSettings } from "@/lib/db/queries/settings";
 import { SITE_CONTENT_KEYS } from "@/lib/site/content-keys";
 import { getShelfBooks, removeShelfBook, setSiteContentField } from "@/server/actions/site";
+import { addCommonplaceItem, removeCommonplaceItem } from "@/server/actions/commonplace";
 import { InlineEditable } from "@/components/home/inline-editable";
 import { AddShelfBookForm } from "@/components/commonplace/add-shelf-book-form";
-import type { BrainItemType } from "@/lib/brain/constants";
+import { BRAIN_ITEM_TYPES, type BrainItemType } from "@/lib/brain/constants";
 
 const TYPE_LABELS: Record<BrainItemType, string> = {
   THOUGHT: "Thought",
@@ -119,9 +120,41 @@ export default async function CommonplacePage() {
       )}
 
       {isOwner && (
-        <p className="mt-6 text-xs text-muted">
-          Mark any idea Public from Studio to have it show up below.
-        </p>
+        <form
+          action={addCommonplaceItem}
+          className="mt-6 flex flex-wrap items-end gap-3 border-b border-border pb-6"
+        >
+          <label className="min-w-0 flex-1 basis-60">
+            <span className="text-xs text-muted">Add something worth keeping</span>
+            <input
+              type="text"
+              name="content"
+              placeholder="A quote, a book, a place, an idea…"
+              required
+              className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:border-ink focus:outline-none"
+            />
+          </label>
+          <label>
+            <span className="text-xs text-muted">Type</span>
+            <select
+              name="type"
+              defaultValue="THOUGHT"
+              className="mt-1 block border-b border-border bg-transparent py-1 text-sm text-ink focus:border-ink focus:outline-none"
+            >
+              {BRAIN_ITEM_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {TYPE_LABELS[type]}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="submit"
+            className="rounded-full bg-ink px-4 py-1.5 text-xs font-medium text-paper hover:bg-accent"
+          >
+            Add
+          </button>
+        </form>
       )}
 
       {items.length === 0 ? (
@@ -129,11 +162,21 @@ export default async function CommonplacePage() {
       ) : (
         <div className="mt-10 divide-y divide-border">
           {items.map((item) => (
-            <div key={item.id} className="py-6">
+            <div key={item.id} className="group py-6">
               <div className="flex items-baseline justify-between gap-4">
                 <p className="text-ink">{item.title || item.content}</p>
-                <span className="shrink-0 text-xs text-muted">
+                <span className="flex shrink-0 items-center gap-3 text-xs text-muted">
                   {TYPE_LABELS[item.type as BrainItemType] ?? item.type}
+                  {isOwner && (
+                    <form action={removeCommonplaceItem.bind(null, item.id)}>
+                      <button
+                        type="submit"
+                        className="opacity-0 transition-opacity group-hover:opacity-100 hover:text-ink"
+                      >
+                        Remove
+                      </button>
+                    </form>
+                  )}
                 </span>
               </div>
               {item.title && <p className="mt-1 text-sm text-muted">{item.content}</p>}
