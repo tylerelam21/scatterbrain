@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { addPhotoToCollection, createPhoto, requestPhotoUpload } from "@/server/actions/photos";
+import { addPhotoToCollection, uploadPhotoFile } from "@/server/actions/photos";
 
 interface PhotoUploaderProps {
   collectionSlug?: string;
@@ -26,8 +26,9 @@ function readImageDimensions(file: File): Promise<{ width: number; height: numbe
 }
 
 // PRD §26 — drag/drop, file picker, multiple uploads, automatic dimension
-// extraction. The file goes straight to R2 via a presigned PUT; our server
-// only ever sees the resulting metadata.
+// extraction. Each file is sent to our own server (uploadPhotoFile), which
+// does the R2 PUT itself — no direct browser-to-R2 request, so no bucket
+// CORS policy to get right.
 export function PhotoUploader({ collectionSlug, collectionId }: PhotoUploaderProps) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -42,31 +43,12 @@ export function PhotoUploader({ collectionSlug, collectionId }: PhotoUploaderPro
         if (!file.type.startsWith("image/")) continue;
 
         const { width, height } = await readImageDimensions(file);
-        const { storageKey, uploadUrl } = await requestPhotoUpload(file.name, file.type);
 
-        let res: Response;
-        try {
-          res = await fetch(uploadUrl, {
-            method: "PUT",
-            body: file,
-            headers: { "Content-Type": file.type },
-          });
-        } catch {
-          // A network-level failure here (not an HTTP error status) almost
-          // always means the browser blocked the cross-origin PUT — R2
-          // buckets need an explicit CORS policy allowing this origin.
-          throw new Error("Upload to storage was blocked. The storage bucket's CORS policy likely needs this site's origin allowed.");
-        }
-        if (!res.ok) {
-          throw new Error(`Upload to storage failed (${res.status} ${res.statusText}).`);
-        }
-
-        const photo = await createPhoto({
-          storageKey,
-          originalFilename: file.name,
-          width,
-          height,
-        });
+        const formData = new FormData();
+        formData.set("file", file);
+        formData.set("width", String(width));
+        formData.set("height", String(height));
+        const photo = await uploadPhotoFile(formData);
 
         if (collectionId && photo) {
           const formData = new FormData();

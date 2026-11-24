@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { requestPhotoUpload, createPhoto } from "@/server/actions/photos";
+import { uploadPhotoFile } from "@/server/actions/photos";
 import { setProjectHeroImage, clearProjectHeroImage } from "@/server/actions/work";
 
 function readImageDimensions(file: File): Promise<{ width: number; height: number }> {
@@ -28,8 +28,8 @@ interface ProjectHeroUploaderProps {
 }
 
 // The cover photo shown on this project's Featured Work spread on the
-// public homepage (and its own page). Same direct-to-R2 presigned upload
-// as the Photos uploader, just one file, then attached via
+// public homepage (and its own page). The file is sent to our own server
+// (uploadPhotoFile), which does the R2 PUT itself, then attached via
 // setProjectHeroImage rather than added to a collection.
 export function ProjectHeroUploader({ projectId, slug, currentHeroImageId }: ProjectHeroUploaderProps) {
   const router = useRouter();
@@ -42,23 +42,12 @@ export function ProjectHeroUploader({ projectId, slug, currentHeroImageId }: Pro
     setStatus("uploading");
     try {
       const { width, height } = await readImageDimensions(file);
-      const { storageKey, uploadUrl } = await requestPhotoUpload(file.name, file.type);
 
-      let res: Response;
-      try {
-        res = await fetch(uploadUrl, {
-          method: "PUT",
-          body: file,
-          headers: { "Content-Type": file.type },
-        });
-      } catch {
-        throw new Error("Upload to storage was blocked. The storage bucket's CORS policy likely needs this site's origin allowed.");
-      }
-      if (!res.ok) {
-        throw new Error(`Upload to storage failed (${res.status} ${res.statusText}).`);
-      }
-
-      const photo = await createPhoto({ storageKey, originalFilename: file.name, width, height });
+      const formData = new FormData();
+      formData.set("file", file);
+      formData.set("width", String(width));
+      formData.set("height", String(height));
+      const photo = await uploadPhotoFile(formData);
       await setProjectHeroImage(projectId, slug, photo.id);
 
       setStatus("idle");

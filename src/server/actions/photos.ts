@@ -2,9 +2,11 @@
 
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { requireOwner } from "@/lib/auth/require-owner";
 import * as photoQueries from "@/lib/db/queries/photos";
-import { generateStorageKey, getPresignedUploadUrl, deleteStorageObject } from "@/lib/storage/presign";
+import { generateStorageKey, deleteStorageObject } from "@/lib/storage/presign";
+import { getStorageBucket, getStorageClient } from "@/lib/storage/client";
 import { VISIBILITY_OPTIONS, type Visibility } from "@/lib/content/visibility";
 
 function revalidatePhotos(slug?: string) {
@@ -12,26 +14,45 @@ function revalidatePhotos(slug?: string) {
   if (slug) revalidatePath(`/photos/${slug}`);
 }
 
-// PRD §26 — the client uploads directly to R2 with this presigned URL; the
-// file body never passes through our server (Vercel function body limits,
-// and no reason to pay for that bandwidth twice).
-export async function requestPhotoUpload(filename: string, contentType: string) {
-  await requireOwner();
-  const storageKey = generateStorageKey(filename);
-  const uploadUrl = await getPresignedUploadUrl(storageKey, contentType);
-  return { storageKey, uploadUrl };
-}
-
-export async function createPhoto(input: {
+// The file passes through this Server Action and gets PUT to R2 with our
+// own credentials — no direct browser-to-R2 request, so no CORS policy to
+// get right. (An earlier version uploaded straight from the browser via a
+// presigned URL; that depended on the storage bucket's CORS config
+// matching the site's exact origin, which turned out to be a persistent
+// source of broken uploads.) Payload size is capped by
+// experimental.serverActions.bodySizeLimit in next.config.ts.
+export async function uploadPhotoFile(formData: FormData): Promise<{
+  id: string;
   storageKey: string;
-  originalFilename: string;
-  width: number;
-  height: number;
-}) {
+}> {
   await requireOwner();
-  const photo = await photoQueries.createPhoto(input);
+
+  const file = formData.get("file");
+  if (!(file instanceof File)) throw new Error("No file provided.");
+
+  const width = Number(formData.get("width"));
+  const height = Number(formData.get("height"));
+  const storageKey = generateStorageKey(file.name);
+  const bytes = new Uint8Array(await file.arrayBuffer());
+
+  const client = getStorageClient();
+  await client.send(
+    new PutObjectCommand({
+      Bucket: getStorageBucket(),
+      Key: storageKey,
+      Body: bytes,
+      ContentType: file.type,
+    }),
+  );
+
+  const photo = await photoQueries.createPhoto({
+    storageKey,
+    originalFilename: file.name,
+    width: Number.isFinite(width) ? width : 0,
+    height: Number.isFinite(height) ? height : 0,
+  });
   revalidatePhotos();
-  return photo;
+  return { id: photo.id, storageKey: photo.storageKey };
 }
 
 export async function updatePhotoMeta(id: string, formData: FormData) {

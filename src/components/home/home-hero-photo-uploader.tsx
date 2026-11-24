@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { requestPhotoUpload, createPhoto } from "@/server/actions/photos";
+import { uploadPhotoFile } from "@/server/actions/photos";
 import { setHomeHeroPhoto, clearHomeHeroPhoto } from "@/server/actions/site";
 
 function readImageDimensions(file: File): Promise<{ width: number; height: number }> {
@@ -21,10 +21,8 @@ function readImageDimensions(file: File): Promise<{ width: number; height: numbe
   });
 }
 
-// Same direct-to-R2 presigned upload as the project hero/photos uploaders,
-// just attached to the homepage via the generic site-content store
-// (home.heroPhotoId) instead of a dedicated column, since the homepage
-// has no row of its own.
+// The file is sent to our own server (uploadPhotoFile), which does the R2
+// PUT itself — same origin the whole way, no bucket CORS policy involved.
 export function HomeHeroPhotoUploader({ currentPhotoId }: { currentPhotoId: string | null }) {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,23 +34,12 @@ export function HomeHeroPhotoUploader({ currentPhotoId }: { currentPhotoId: stri
     setStatus("uploading");
     try {
       const { width, height } = await readImageDimensions(file);
-      const { storageKey, uploadUrl } = await requestPhotoUpload(file.name, file.type);
 
-      let res: Response;
-      try {
-        res = await fetch(uploadUrl, {
-          method: "PUT",
-          body: file,
-          headers: { "Content-Type": file.type },
-        });
-      } catch {
-        throw new Error("Upload to storage was blocked. The storage bucket's CORS policy likely needs this site's origin allowed.");
-      }
-      if (!res.ok) {
-        throw new Error(`Upload to storage failed (${res.status} ${res.statusText}).`);
-      }
-
-      const photo = await createPhoto({ storageKey, originalFilename: file.name, width, height });
+      const formData = new FormData();
+      formData.set("file", file);
+      formData.set("width", String(width));
+      formData.set("height", String(height));
+      const photo = await uploadPhotoFile(formData);
       await setHomeHeroPhoto(photo.id);
 
       setStatus("idle");
