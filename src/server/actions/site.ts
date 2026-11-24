@@ -12,7 +12,11 @@ export async function setSiteContent(formData: FormData) {
     const value = String(formData.get(key) ?? "").trim();
     await setAppSetting(owner.id, key, value);
   }
+  // Keep the /now page's "last updated" date accurate regardless of which
+  // form actually changed the body (see updateNowPage).
+  await setAppSetting(owner.id, "now.updatedAt", new Date().toISOString());
   revalidatePath("/");
+  revalidatePath("/now");
   revalidatePath("/settings");
 }
 
@@ -41,4 +45,14 @@ export async function clearHomeHeroPhoto() {
   const owner = await requireOwner();
   await setAppSetting(owner.id, "home.heroPhotoId", "");
   revalidatePath("/");
+}
+
+// Bumps now.updatedAt alongside the body so the /now page can show a real
+// "last updated" date — the classic nownownow.com convention — without
+// the two ever drifting out of sync.
+export async function updateNowPage(body: string) {
+  const owner = await requireOwner();
+  await setAppSetting(owner.id, "now.body", body.trim());
+  await setAppSetting(owner.id, "now.updatedAt", new Date().toISOString());
+  revalidatePath("/now");
 }

@@ -2,9 +2,13 @@
 // public homepage (see server/actions/site.ts). Split out from that file
 // because a "use server" module can only export async functions — this
 // constant needs to be importable from plain server components too.
+// Note: home.heroPhotoId is deliberately NOT listed here — it's a photo
+// id, never a hand-typed field, and setSiteContent's bulk form loop would
+// wipe any key missing from its submitted fields to "". It's read/written
+// only via getAppSetting/setHomeHeroPhoto/clearHomeHeroPhoto directly.
 export const SITE_CONTENT_KEYS = [
-  "home.heroPhotoId",
   "home.heroIntro",
+  "now.body",
   "home.footerBio",
   "home.aboutTagline",
   "home.aboutBody",

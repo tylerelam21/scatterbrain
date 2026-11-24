@@ -135,6 +135,26 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
         </p>
         <form action={setSiteContent} className="mt-4 space-y-4">
           <label className="block">
+            <span className="text-xs text-muted">Hero intro</span>
+            <textarea
+              name="home.heroIntro"
+              rows={3}
+              defaultValue={siteContent["home.heroIntro"] ?? ""}
+              placeholder="I'm Tyler — an Atlanta-based builder, curious generalist, and aspiring entrepreneur interested in the intersection of business, technology, and community."
+              className="mt-1 w-full resize-none border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs text-muted">Now page</span>
+            <textarea
+              name="now.body"
+              rows={5}
+              defaultValue={siteContent["now.body"] ?? ""}
+              placeholder="What you're currently working on, reading, learning, and exploring."
+              className="mt-1 w-full resize-none border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+            />
+          </label>
+          <label className="block">
             <span className="text-xs text-muted">About tagline</span>
             <input
               type="text"

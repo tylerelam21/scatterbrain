@@ -64,6 +64,19 @@ export async function getRecentBrainItems(userId: string, limit = 5) {
     .limit(limit);
 }
 
+// Public "Commonplace" — a curated collection, not a filtered Ideas feed:
+// any non-archived, visibility=PUBLIC brain item of any type. Curation
+// happens by the owner marking individual items public, not by type.
+export async function listPublicBrainItems(userId: string) {
+  return db
+    .select()
+    .from(brainItems)
+    .where(
+      and(eq(brainItems.userId, userId), eq(brainItems.archived, false), eq(brainItems.visibility, "PUBLIC")),
+    )
+    .orderBy(desc(brainItems.createdAt));
+}
+
 export async function getBrainItemById(userId: string, id: string) {
   return db.query.brainItems.findFirst({
     where: and(eq(brainItems.id, id), eq(brainItems.userId, userId)),
