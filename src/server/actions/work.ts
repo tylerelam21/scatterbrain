@@ -119,38 +119,58 @@ export async function updateProjectSlug(
   return { ok: true, slug };
 }
 
-export async function updateProjectMeta(id: string, currentSlug: string, formData: FormData) {
+export type ProjectMetaField =
+  | "status"
+  | "visibility"
+  | "featured"
+  | "sortOrder"
+  | "repositoryUrl"
+  | "liveUrl";
+
+// One field, saved the moment it changes (select onChange, checkbox
+// onChange, text input onBlur) — see ProjectSettingsPanel. Replaces an
+// earlier single big form with one "Save" button for all six fields,
+// which made it unclear whether a click had actually saved anything.
+export async function updateProjectMetaField(
+  id: string,
+  currentSlug: string,
+  field: ProjectMetaField,
+  value: string,
+) {
   await requireOwner();
 
-  const statusRaw = String(formData.get("status") ?? "");
-  const visibilityRaw = String(formData.get("visibility") ?? "");
-  const status = (PROJECT_STATUSES as readonly string[]).includes(statusRaw)
-    ? (statusRaw as ProjectStatus)
-    : undefined;
-  const visibility = (VISIBILITY_OPTIONS as readonly string[]).includes(visibilityRaw)
-    ? (visibilityRaw as Visibility)
-    : undefined;
-  const featured = formData.get("featured") === "1";
-  const repositoryUrl = String(formData.get("repositoryUrl") ?? "").trim();
-  const liveUrl = String(formData.get("liveUrl") ?? "").trim();
-  const sortOrderRaw = Number(formData.get("sortOrder"));
-  const sortOrder = Number.isFinite(sortOrderRaw) ? sortOrderRaw : 0;
+  const update: Parameters<typeof workQueries.updateProject>[1] = {};
 
-  const update: Parameters<typeof workQueries.updateProject>[1] = {
-    featured,
-    repositoryUrl: repositoryUrl || null,
-    liveUrl: liveUrl || null,
-    sortOrder,
-    ...(status ? { status } : {}),
-    ...(visibility ? { visibility } : {}),
-  };
-
-  // PRD §21 — publishedAt marks the first time a project actually went public.
-  if (visibility === "PUBLIC") {
-    const project = await workQueries.getProjectById(id);
-    if (project && !project.publishedAt) {
-      update.publishedAt = new Date();
+  switch (field) {
+    case "status": {
+      if (!(PROJECT_STATUSES as readonly string[]).includes(value)) return;
+      update.status = value as ProjectStatus;
+      break;
     }
+    case "visibility": {
+      if (!(VISIBILITY_OPTIONS as readonly string[]).includes(value)) return;
+      update.visibility = value as Visibility;
+      // PRD §21 — publishedAt marks the first time a project actually went public.
+      if (value === "PUBLIC") {
+        const project = await workQueries.getProjectById(id);
+        if (project && !project.publishedAt) update.publishedAt = new Date();
+      }
+      break;
+    }
+    case "featured":
+      update.featured = value === "1";
+      break;
+    case "sortOrder": {
+      const parsed = Number(value);
+      update.sortOrder = Number.isFinite(parsed) ? parsed : 0;
+      break;
+    }
+    case "repositoryUrl":
+      update.repositoryUrl = value.trim() || null;
+      break;
+    case "liveUrl":
+      update.liveUrl = value.trim() || null;
+      break;
   }
 
   await workQueries.updateProject(id, update);
