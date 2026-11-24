@@ -175,6 +175,26 @@ export default async function SettingsPage({ searchParams }: SettingsPageProps) 
             />
           </label>
           <label className="block">
+            <span className="text-xs text-muted">Often listening to (Commonplace)</span>
+            <input
+              type="text"
+              name="commonplace.listening"
+              defaultValue={siteContent["commonplace.listening"] ?? ""}
+              placeholder="Pinegrove, Hiss Golden Messenger, NPR's Tiny Desk…"
+              className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+            />
+          </label>
+          <label className="block">
+            <span className="text-xs text-muted">Places I care about (Commonplace)</span>
+            <input
+              type="text"
+              name="commonplace.places"
+              defaultValue={siteContent["commonplace.places"] ?? ""}
+              placeholder="Atlanta, Athens, the Blue Ridge foothills…"
+              className="mt-1 w-full border-b border-border bg-transparent py-1 text-sm text-ink placeholder:text-muted focus:outline-none"
+            />
+          </label>
+          <label className="block">
             <span className="text-xs text-muted">Footer bio line</span>
             <input
               type="text"

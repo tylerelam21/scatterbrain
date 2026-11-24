@@ -2,9 +2,49 @@
 
 import { revalidatePath } from "next/cache";
 import { requireOwner } from "@/lib/auth/require-owner";
-import { setAppSetting } from "@/lib/db/queries/settings";
+import { getAppSetting, setAppSetting } from "@/lib/db/queries/settings";
 import { updatePhoto } from "@/lib/db/queries/photos";
 import { SITE_CONTENT_KEYS, type SiteContentKey } from "@/lib/site/content-keys";
+
+export interface ShelfBook {
+  title: string;
+  creator: string | null;
+  coverImageUrl: string | null;
+}
+
+const SHELF_KEY = "commonplace.shelf";
+const SHELF_MAX = 6;
+
+export async function getShelfBooks(ownerId: string): Promise<ShelfBook[]> {
+  const raw = await getAppSetting(ownerId, SHELF_KEY);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+// "Currently on my shelf" — real covers via the same Open Library lookup
+// the Reading feature uses (see lib/reading/book-search.ts), stored as a
+// small JSON list rather than a new table since it's just a handful of
+// {title, creator, coverImageUrl} entries, newest first.
+export async function addShelfBook(book: ShelfBook) {
+  const owner = await requireOwner();
+  const current = await getShelfBooks(owner.id);
+  const next = [book, ...current].slice(0, SHELF_MAX);
+  await setAppSetting(owner.id, SHELF_KEY, JSON.stringify(next));
+  revalidatePath("/commonplace");
+}
+
+export async function removeShelfBook(index: number) {
+  const owner = await requireOwner();
+  const current = await getShelfBooks(owner.id);
+  const next = current.filter((_, i) => i !== index);
+  await setAppSetting(owner.id, SHELF_KEY, JSON.stringify(next));
+  revalidatePath("/commonplace");
+}
 
 export async function setSiteContent(formData: FormData) {
   const owner = await requireOwner();
