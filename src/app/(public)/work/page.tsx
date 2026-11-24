@@ -5,8 +5,7 @@ import { ProjectCard } from "@/components/work/project-card";
 
 // The private Brainstorm box that used to live here moved to Studio's
 // Work space — reachable from the owner's own nav, unlike this public
-// portfolio page. The pegboard header stays; it's a nice banner for
-// visitors too.
+// portfolio page.
 export default async function WorkPage() {
   const session = await auth();
   const isOwner = session?.user?.role === "OWNER";
@@ -15,16 +14,8 @@ export default async function WorkPage() {
 
   return (
     <main className="mx-auto w-full max-w-3xl flex-1 px-6 py-16">
-      {/* eslint-disable-next-line @next/next/no-img-element -- fixed static illustration, not a photo needing next/image optimization */}
-      <img
-        src="/work/pegboard.webp"
-        alt="An illustrated pegboard of painting and hand tools"
-        className="mb-10 block w-full h-auto rounded-lg select-none"
-        draggable={false}
-      />
-
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl tracking-tight text-ink">Work</h1>
+        <h1 className="font-display text-3xl tracking-tight text-ink">Work</h1>
         {isOwner && (
           <form action={createProject.bind(null, false)}>
             <button
