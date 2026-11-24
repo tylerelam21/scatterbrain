@@ -1,18 +1,21 @@
 @import "tailwindcss";
 
-/* PRD §31-33 — a specific, personal palette instead of default gray/blue
-   "SaaS" tokens. Warm paper/ink rather than pure black/white, one confident
-   accent used sparingly, hairline borders instead of card chrome. */
+/* Site-wide redesign (Nov 2026) — "warm editorial minimalism": a warm
+   off-white paper, near-black ink, a muted olive accent used sparingly,
+   plus clay and stone as secondary tones for highlights and borders.
+   Replaces the earlier green-accent palette across the whole app, not
+   just the public pages — everything reads off these same tokens. */
 :root {
-  --paper: #faf9f6;
-  --ink: #17140f;
-  --muted: #6b6558;
-  --border: rgba(23, 20, 15, 0.1);
-  /* Bilbo's door — sampled from the reference art, then muted slightly
-     (same hue/lightness, less saturated) so it reads calmer as the one
-     color used everywhere in the UI, distinct from any single calendar's
-     own color (see colors.ts). */
-  --accent: #365136;
+  --paper: #f5f2e9;
+  --ink: #252925;
+  --olive: #626b50;
+  --clay: #ac7358;
+  --stone: #d6d0c4;
+  --accent: var(--olive);
+  --border: var(--stone);
+  /* No standalone muted swatch in the new palette — derived as ink
+     softened toward paper, so it tracks both if either ever changes. */
+  --muted: color-mix(in srgb, var(--ink) 58%, var(--paper));
   /* "Find the best move" board — restrained warm neutrals, deliberately
      not chess-site green. */
   --chess-light: #f2efe8;
@@ -20,7 +23,7 @@
   /* Quick Capture sticky note's shadow — a plain warm-dark drop shadow
      reads fine against light paper, but disappears entirely against
      dark paper (see the dark override below). */
-  --note-shadow: 3px 6px 14px rgba(23, 20, 15, 0.18);
+  --note-shadow: 3px 6px 14px rgba(37, 41, 37, 0.18);
 }
 
 @theme inline {
@@ -29,23 +32,29 @@
   --color-muted: var(--muted);
   --color-border: var(--border);
   --color-accent: var(--accent);
-  --font-sans: var(--font-geist-sans);
+  --color-olive: var(--olive);
+  --color-clay: var(--clay);
+  --color-stone: var(--stone);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-fraunces);
+  --font-display: var(--font-newsreader);
   --font-hand: var(--font-kalam);
 }
 
-/* Light (warm ivory) is the default look. Dark is an available option,
+/* Light (warm paper) is the default look. Dark is an available option,
    toggled explicitly (see ThemeToggle) rather than following the OS
-   automatically — set via a `data-theme` attribute on <html>. */
+   automatically — set via a `data-theme` attribute on <html>. First-pass
+   derived dark palette (the new-identity brief only specified light) —
+   straightforward to retune later. */
 :root[data-theme="dark"] {
-  --paper: #121110;
-  --ink: #f5f1ea;
-  --muted: #9c9587;
-  --border: rgba(245, 241, 234, 0.12);
-  /* The rune's own icy blue, tuned slightly off the raw #01b8fb sample
-     for text legibility. */
-  --accent: #3ec5f5;
+  --paper: #1a1912;
+  --ink: #f5f2e9;
+  --olive: #9cae82;
+  --clay: #d99b7d;
+  --stone: #3a372e;
+  --accent: var(--olive);
+  --border: rgba(245, 242, 233, 0.14);
+  --muted: color-mix(in srgb, var(--ink) 55%, var(--paper));
   --chess-light: #2b2824;
   --chess-dark: #1c1a17;
   /* A plain dark shadow is invisible against near-black paper — a soft
@@ -170,7 +179,7 @@ body {
 .journal-editor .ProseMirror h1,
 .journal-editor .ProseMirror h2,
 .journal-editor .ProseMirror h3 {
-  font-family: var(--font-fraunces);
+  font-family: var(--font-newsreader);
   font-weight: 600;
   line-height: 1.25;
   margin-top: 1.5em;
