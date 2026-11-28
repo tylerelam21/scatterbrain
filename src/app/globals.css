@@ -14,8 +14,12 @@
   --accent: var(--olive);
   --border: var(--stone);
   /* No standalone muted swatch in the new palette — derived as ink
-     softened toward paper, so it tracks both if either ever changes. */
-  --muted: color-mix(in srgb, var(--ink) 58%, var(--paper));
+     softened toward paper, so it tracks both if either ever changes.
+     66% keeps it clearly secondary to ink while clearing WCAG AA's 4.5:1
+     for body text against paper (~4.66:1, ≈#6c6d68). 58% measured only
+     ~3.7:1, and muted carries real reading text (hero intro, subtitles,
+     nav links, empty states). Re-check contrast if paper or ink change. */
+  --muted: color-mix(in srgb, var(--ink) 66%, var(--paper));
   /* "Find the best move" board — restrained warm neutrals, deliberately
      not chess-site green. */
   --chess-light: #f2efe8;
