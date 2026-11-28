@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 
 // Button + collapsible panel for narrow screens. The panel is absolutely
 // positioned against <Nav>'s own header element (which sets position:
@@ -9,6 +10,28 @@ import { useState } from "react";
 // so it doesn't become the panel's containing block instead.
 export function MobileNavToggle({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
+
+  // This lives in the root layout, so it isn't remounted on navigation —
+  // without this the panel stayed open over the page you'd just tapped
+  // through to. Close it whenever the route changes (React's "adjust state
+  // while rendering" pattern, rather than an effect, so there's no frame
+  // where the new page renders under a still-open menu).
+  const pathname = usePathname();
+  const [lastPathname, setLastPathname] = useState(pathname);
+  if (pathname !== lastPathname) {
+    setLastPathname(pathname);
+    setOpen(false);
+  }
+
+  // Escape closes it too, matching the usual disclosure-menu convention.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [open]);
 
   return (
     <div className="md:hidden">
